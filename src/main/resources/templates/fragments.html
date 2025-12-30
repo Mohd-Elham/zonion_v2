@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/umd/lucide.min.js"></script>
+</head>
+<body>
+<!-- Header Fragment -->
+<div th:fragment="header">
+    <nav class="bg-white shadow-sm p-4">
+        <div class="container mx-auto">
+            <a href="/">
+                <div class="flex items-center">
+                    <img th:src="@{/images/onion-logo.png}" alt="Zonion" class="h-8">
+                    <h1 class="text-2xl font-[800] text-zonion ml-3 mt-1.5">ZONION</h1>
+                </div>
+            </a>
+        </div>
+    </nav>
+</div>
+
+<div class="flex">
+    <!-- Sidebar -->
+    <div class="flex-col w-64 h-screen border-r bg-white">
+        <div class="text-xl text-zonion font-[600] p-8 border-b">Admin Dashboard</div>
+
+        <!-- Navigation Items -->
+        <nav class="mt-4">
+            <a href="#" class="flex items-center px-8 py-3 text-gray-700 hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <i data-lucide="shopping-bag" class="w-5 h-5 mr-3"></i>
+                <span class="font-medium">Products</span>
+            </a>
+            <a href="#" class="flex items-center px-8 py-3 text-gray-700 hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <i data-lucide="grid" class="w-5 h-5 mr-3"></i>
+                <span class="font-medium">Categories</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="flex-1 p-8">
+        <!-- Your main content goes here -->
+    </div>
+</div>
+
+<!-- Footer Fragment -->
+<div th:fragment="footer">
+    <footer th:fragment="footer" class=" bottom-0 left-0 right-0 bg-gray-900 text-white py-4 md:py-8 ">
+        <div class="container mx-auto px-4 text-center">
+            <p>&copy; 2025 Zonion. This is just a project for learning purposes.</p>
+        </div>
+    </footer>
+</div>
+
+</body>
+
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    zonion: '#BC5DC6',
+                },
+                fontFamily: {
+                    'sans': ['Montserrat', 'sans-serif'],
+                },
+                fontWeight: {
+                    'thin': '100',
+                    'extralight': '200',
+                    'light': '300',
+                    'normal': '400',
+                    'medium': '500',
+                    'semibold': '600',
+                    'bold': '700',
+                    'extrabold': '800',
+                    'black': '900',
+                },
+                fontSize: {
+                    'xs': ['0.75rem', { lineHeight: '1rem' }],
+                    'sm': ['0.875rem', { lineHeight: '1.25rem' }],
+                    'base': ['1rem', { lineHeight: '1.5rem' }],
+                    'lg': ['1.125rem', { lineHeight: '1.75rem' }],
+                    'xl': ['1.25rem', { lineHeight: '1.75rem' }],
+                    '2xl': ['1.5rem', { lineHeight: '2rem' }],
+                    '3xl': ['1.875rem', { lineHeight: '2.25rem' }],
+                    '4xl': ['2.25rem', { lineHeight: '2.5rem' }],
+                    '5xl': ['3rem', { lineHeight: '1' }],
+                    '6xl': ['3.75rem', { lineHeight: '1' }],
+                    '7xl': ['4.5rem', { lineHeight: '1' }],
+                    '8xl': ['6rem', { lineHeight: '1' }],
+                    '9xl': ['8rem', { lineHeight: '1' }],
+                },
+            },
+        },
+    };
+
+    // Initialize Lucide icons
+    lucide.createIcons();
+</script>
+</html>

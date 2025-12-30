@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Cropper.js CSS and JS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Category Creation with Image Cropping</title>
+</head>
+<body>
+<!-- Header Fragment -->
+<div th:fragment="header">
+    <nav class="bg-white shadow-sm p-4">
+        <div class="container mx-auto">
+            <div class="flex items-center justify-between">
+                <a href="/">
+                    <div class="flex items-center">
+                        <img th:src="@{/images/onion-logo.png}" alt="Zonion" class="h-8">
+                        <h1 class="text-2xl font-[800] text-zonion ml-3 mt-1.5">ZONION</h1>
+                    </div>
+                </a>
+                <div class="flex items-center gap-4">
+                    <button class="p-2 hover:bg-gray-100 rounded-full">
+                        <i data-lucide="bell" class="w-5 h-5 text-gray-600"></i>
+                    </button>
+                    <button class="p-2 hover:bg-gray-100 rounded-full">
+                        <i data-lucide="user" class="w-5 h-5 text-gray-600"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+</div>
+
+<div class="flex">
+    <!-- Sidebar -->
+    <div class="flex-col w-64 h-screen border-r bg-white">
+        <div class="text-xl text-zonion font-[600] p-8 border-b">Admin Dashboard</div>
+
+        <!-- Navigation Items -->
+        <nav class="mt-4">
+
+            <a href="/admin_dashboard/main" class="flex items-center px-8 py-3  hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Admin Dashboard</span>
+            </a>
+            <a href="/admin_dashboard" class="flex items-center px-8 py-3 text-gray-700 hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+
+                <span class="font-medium">Users</span>
+            </a>
+            <a href="/admin_dashboard/products" class="flex items-center px-8 py-3 text-gray-700 hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+
+                <span class="font-medium">Products</span>
+            </a>
+            <a href="/admin_dashboard/category" class="flex items-center px-8 py-3 text-zonion bg-purple-50 hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+
+                <span class="font-medium">Categories</span>
+            </a>
+            <a href="/admin/orders" class="flex items-center px-8 py-3   hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+
+                <span class="font-medium">Orders</span>
+            </a>
+            <a href="/admin_dashboard/inventory" class="flex items-center px-8 py-3    hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">inventory</span>
+            </a>
+
+            <a href="/admin_dashboard/coupons"
+               class="flex items-center px-8 py-3  hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Coupons</span>
+            </a>
+            <a href="/admin_dashboard/offers"
+               class="flex items-center px-8 py-3  hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Offers</span>
+            </a>
+            <a href="/admin_dashboard/sales-report"
+               class="flex items-center px-8 py-3 hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Sales Report</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- category Table -->
+    <!-- ... (keep existing head and sidebar) ... -->
+
+    <!-- Categories Table -->
+    <!-- ... (keep existing head and sidebar) ... -->
+
+    <!-- Categories Table -->
+    <div class="flex-1 p-8">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-gray-800">Categories</h2>
+            <a href="/admin_dashboard/add_category"
+               class="bg-zonion text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors">
+                Add New Category
+            </a>
+        </div>
+
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Image</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category Name</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                <tr th:each="category : ${categories}">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <img th:if="${category.image_path}"
+                             th:src="@{${category.image_path}}"
+                             class="h-12 w-12 rounded-full object-cover">
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap" th:text="${category.category_name}"></td>
+                    <td class="px-6 py-4 whitespace-nowrap" th:text="${category.category_description}"></td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <a th:href="@{/categories/edit/{id}(id=${category.id})}"
+                           class="text-zonion hover:text-purple-700 mr-4">Edit</a>
+                        <form th:action="@{/categories/delete}" method="post" class="inline">
+                            <input type="hidden" name="id" th:value="${category.id}">
+                            <button type="submit"
+                                    class="text-red-600 hover:text-red-800"
+                                    onclick="return confirm('Are you sure you want to delete this category?')">
+                                Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    zonion: '#BC5DC6',
+                },
+                fontFamily: {
+                    'sans': ['Montserrat', 'sans-serif'],
+                },
+                // ... other Tailwind config remains the same
+            },
+        },
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const imageInput = document.getElementById('imageInput');
+        const cropperContainer = document.getElementById('cropperContainer');
+        const cropperImage = document.getElementById('cropperImage');
+        const cropButton = document.getElementById('cropButton');
+        const cancelCropButton = document.getElementById('cancelCropButton');
+        const croppedImageData = document.getElementById('croppedImageData');
+        let cropper;
+
+        imageInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    cropperImage.src = e.target.result;
+
+                    // Destroy existing cropper if any
+                    if (cropper) {
+                        cropper.destroy();
+                    }
+
+                    // Initialize Cropper
+                    cropper = new Cropper(cropperImage, {
+                        aspectRatio: 1, // Square crop
+                        viewMode: 1,
+                        minCropBoxWidth: 100,
+                        minCropBoxHeight: 100
+                    });
+
+                    // Show cropper container
+                    cropperContainer.classList.remove('hidden');
+                };
+
+                reader.readAsDataURL(file);
+            }
+        });
+
+        cropButton.addEventListener('click', function() {
+            // Get cropped image data as base64
+            const croppedCanvas = cropper.getCroppedCanvas({
+                width: 300, // Set desired width
+                height: 300  // Set desired height
+            });
+
+            const base64Image = croppedCanvas.toDataURL('image/jpeg');
+
+            // Store cropped image data in hidden input
+            croppedImageData.value = base64Image;
+
+            // Hide cropper
+            cropperContainer.classList.add('hidden');
+
+            // Optional: Show preview or give user feedback
+            alert('Image cropped successfully!');
+        });
+
+        cancelCropButton.addEventListener('click', function() {
+            // Reset file input and hide cropper
+            imageInput.value = '';
+            cropperContainer.classList.add('hidden');
+
+            // Destroy cropper
+            if (cropper) {
+                cropper.destroy();
+            }
+        });
+    });
+</script>
+</body>
+</html>

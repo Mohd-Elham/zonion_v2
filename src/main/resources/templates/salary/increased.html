@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1>HR SALARY INCREASE BY 10%</h1>
+<form th:action="@{/salary_increase}" method="post">
+    <p>ENter the salary amount </p>
+    <input type="number" name="salary_amount" min="1" max="10">
+</form>
+
+<h2>Increased salaey is </h2>
+<p th:text="${salary}" ></p>
+
+</body>
+</html>

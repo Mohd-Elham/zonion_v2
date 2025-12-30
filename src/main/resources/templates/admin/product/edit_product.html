@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Cropper and Tailwind CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Edit Product</title>
+</head>
+<body>
+<!-- Header Fragment -->
+<div th:fragment="header">
+    <nav class="bg-white shadow-sm p-4">
+        <div class="container mx-auto">
+            <div class="flex items-center justify-between">
+                <a href="/">
+                    <div class="flex items-center">
+                        <img th:src="@{/images/onion-logo.png}" alt="Zonion" class="h-8">
+                        <h1 class="text-2xl font-[800] text-zonion ml-3 mt-1.5">ZONION</h1>
+                    </div>
+                </a>
+                <div class="flex items-center gap-4">
+                    <button class="p-2 hover:bg-gray-100 rounded-full">
+                        <i data-lucide="bell" class="w-5 h-5 text-gray-600"></i>
+                    </button>
+                    <button class="p-2 hover:bg-gray-100 rounded-full">
+                        <i data-lucide="user" class="w-5 h-5 text-gray-600"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+</div>
+
+<div class="flex">
+    <!-- Sidebar -->
+    <div class="flex-col w-64 h-screen border-r bg-white">
+        <div class="text-xl text-zonion font-[600] p-8 border-b">Admin Dashboard</div>
+        <!-- Navigation Items -->
+        <nav class="mt-4">
+            <a href="/admin_dashboard" class="flex items-center px-8 py-3 text-gray-700 hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+
+                <span class="font-medium">Users</span>
+            </a>
+            <a href="/admin_dashboard/products" class="flex items-center px-8 py-3 bg-purple-50 text-zonion hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+
+                <span class="font-medium">Products</span>
+            </a>
+            <a href="/admin_dashboard/category" class="flex items-center px-8 py-3 hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+
+                <span class="font-medium">Categories</span>
+            </a>
+            <a href="/admin/orders" class="flex items-center px-8 py-3   hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Orders</span>
+            </a>
+            <a href="/admin_dashboard/inventory" class="flex items-center px-8 py-3  bg-purple-50 hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">inventory</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="max-w-2xl mx-auto p-8">
+        <div class="bg-white rounded-lg shadow-sm">
+            <div class="p-6 border-b border-gray-100">
+                <h4 class="text-lg font-semibold text-gray-800">Edit Product</h4>
+            </div>
+            <!-- Form with custom validation -->
+            <form id="editProductForm" class="p-6 space-y-6" th:action="@{/products/update}" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="product_id" th:value="${product.id}">
+
+                <!-- Category Dropdown -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                    <select name="category" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-zonion">
+                        <option value="">Select a category</option>
+                        <option th:each="category : ${categories}"
+                                th:value="${category.id}"
+                                th:selected="${category.id == product.category}"
+                                th:text="${category.category_name}"></option>
+                    </select>
+                    <span id="categoryError" class="text-red-500 text-sm hidden">Please select a category.</span>
+                </div>
+
+                <!-- Product Name with whitespace validation -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Product Name</label>
+                    <input type="text"
+                           th:value="${product.product_name}"
+                           class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-zonion"
+                           name="product_name"
+                           pattern="^(?!\s*$).+"
+                           id="productNameField">
+                    <span id="productNameError" class="text-red-500 text-sm hidden">Product name cannot be empty or whitespace only.</span>
+                    <p th:if="${param.error}" class="text-red-500" th:text="${param.error}"></p>
+                </div>
+
+                <!-- Description with word count limit -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                    <textarea rows="4"
+                              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-zonion"
+                              name="description"
+                              id="descriptionField"
+                              th:text="${product.getProduct_description()}"></textarea>
+                    <span id="descriptionError" class="text-red-500 text-sm hidden">Description cannot exceed 100 words.</span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-6">
+                    <!-- Stock Quantity with minimum 0 -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Stock Quantity</label>
+                        <input type="number"
+                               th:value="${product.stock_quantity}"
+                               class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-zonion"
+                               name="stock_quantity"
+                               min="0">
+                        <span id="stockQuantityError" class="text-red-500 text-sm hidden">Please enter a valid stock quantity (0 or more).</span>
+                    </div>
+
+                    <!-- Price with minimum 0 -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Price</label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-2 text-gray-500">₹</span>
+                            <input type="number" step="0.01"
+                                   th:value="${product.price}"
+                                   class="w-full pl-8 pr-4 py-2 border rounded-lg focus:outline-none focus:border-zonion"
+                                   name="price"
+                                   min="0">
+                        </div>
+                        <span id="priceError" class="text-red-500 text-sm hidden">Please enter a valid price (0 or more).</span>
+                    </div>
+                </div>
+
+                <!-- Image Upload Sections (with cropper) -->
+                <div class="space-y-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Product Images</label>
+
+                    <!-- Image 1 -->
+                    <div class="space-y-4">
+                        <label class="block text-sm text-gray-600">Main Image</label>
+                        <img th:if="${product.image_1}" th:src="@{${product.image_1}}" class="h-24 w-24 object-cover mb-2">
+                        <input type="file" id="imageInput1" name="image1" accept="image/*" class="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        <div id="cropperContainer1" class="hidden mt-4">
+                            <div class="mb-4">
+                                <img id="cropperImage1" class="max-w-full">
+                            </div>
+                            <div class="flex justify-between">
+                                <button type="button" id="cropButton1" class="px-4 py-2 bg-zonion text-white rounded-lg hover:bg-purple-700">Crop</button>
+                                <button type="button" id="cancelCropButton1" class="px-4 py-2 border rounded-lg hover:bg-gray-50">Cancel</button>
+                            </div>
+                        </div>
+                        <input type="hidden" id="croppedImageData1" name="croppedImage1">
+                        <span id="image1Error" class="text-red-500 text-sm hidden">If a new file is selected, please crop the main image.</span>
+                    </div>
+
+                    <!-- Image 2 -->
+                    <div class="space-y-4">
+                        <label class="block text-sm text-gray-600">Additional Image 2</label>
+                        <img th:if="${product.image_2}" th:src="@{${product.image_2}}" class="h-24 w-24 object-cover mb-2">
+                        <input type="file" id="imageInput2" name="image2" accept="image/*" class="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        <div id="cropperContainer2" class="hidden mt-4">
+                            <div class="mb-4">
+                                <img id="cropperImage2" class="max-w-full">
+                            </div>
+                            <div class="flex justify-between">
+                                <button type="button" id="cropButton2" class="px-4 py-2 bg-zonion text-white rounded-lg hover:bg-purple-700">Crop</button>
+                                <button type="button" id="cancelCropButton2" class="px-4 py-2 border rounded-lg hover:bg-gray-50">Cancel</button>
+                            </div>
+                        </div>
+                        <input type="hidden" id="croppedImageData2" name="croppedImage2">
+                        <span id="image2Error" class="text-red-500 text-sm hidden">If a new file is selected, please crop Additional Image 2.</span>
+                    </div>
+
+                    <!-- Image 3 -->
+                    <div class="space-y-4">
+                        <label class="block text-sm text-gray-600">Additional Image 3</label>
+                        <img th:if="${product.image_3}" th:src="@{${product.image_3}}" class="h-24 w-24 object-cover mb-2">
+                        <input type="file" id="imageInput3" name="image3" accept="image/*" class="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        <div id="cropperContainer3" class="hidden mt-4">
+                            <div class="mb-4">
+                                <img id="cropperImage3" class="max-w-full">
+                            </div>
+                            <div class="flex justify-between">
+                                <button type="button" id="cropButton3" class="px-4 py-2 bg-zonion text-white rounded-lg hover:bg-purple-700">Crop</button>
+                                <button type="button" id="cancelCropButton3" class="px-4 py-2 border rounded-lg hover:bg-gray-50">Cancel</button>
+                            </div>
+                        </div>
+                        <input type="hidden" id="croppedImageData3" name="croppedImage3">
+                        <span id="image3Error" class="text-red-500 text-sm hidden">If a new file is selected, please crop Additional Image 3.</span>
+                    </div>
+
+                    <!-- Image 4 -->
+                    <div class="space-y-4">
+                        <label class="block text-sm text-gray-600">Additional Image 4</label>
+                        <img th:if="${product.image_4}" th:src="@{${product.image_4}}" class="h-24 w-24 object-cover mb-2">
+                        <input type="file" id="imageInput4" name="image4" accept="image/*" class="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        <div id="cropperContainer4" class="hidden mt-4">
+                            <div class="mb-4">
+                                <img id="cropperImage4" class="max-w-full">
+                            </div>
+                            <div class="flex justify-between">
+                                <button type="button" id="cropButton4" class="px-4 py-2 bg-zonion text-white rounded-lg hover:bg-purple-700">Crop</button>
+                                <button type="button" id="cancelCropButton4" class="px-4 py-2 border rounded-lg hover:bg-gray-50">Cancel</button>
+                            </div>
+                        </div>
+                        <input type="hidden" id="croppedImageData4" name="croppedImage4">
+                        <span id="image4Error" class="text-red-500 text-sm hidden">If a new file is selected, please crop Additional Image 4.</span>
+                    </div>
+                </div>
+
+                <!-- Error message from backend if any -->
+                <div th:if="${param.error}" class="text-red-500 mb-4">
+                    Error updating category. Please try again.
+                </div>
+
+                <!-- Form Buttons -->
+                <div class="flex justify-end gap-4">
+                    <a th:href="@{/admin_dashboard/products}" class="px-6 py-2 border rounded-lg hover:bg-gray-50">Cancel</a>
+                    <button type="submit" class="px-6 py-2 bg-zonion text-white rounded-lg hover:bg-purple-700">Update Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript -->
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    zonion: '#BC5DC6',
+                },
+                fontFamily: {
+                    'sans': ['Montserrat', 'sans-serif'],
+                },
+                fontWeight: {
+                    'thin': '100',
+                    'extralight': '200',
+                    'light': '300',
+                    'normal': '400',
+                    'medium': '500',
+                    'semibold': '600',
+                    'bold': '700',
+                    'extrabold': '800',
+                    'black': '900',
+                },
+                fontSize: {
+                    'xs': ['0.75rem', { lineHeight: '1rem' }],
+                    'sm': ['0.875rem', { lineHeight: '1.25rem' }],
+                    'base': ['1rem', { lineHeight: '1.5rem' }],
+                    'lg': ['1.125rem', { lineHeight: '1.75rem' }],
+                    'xl': ['1.25rem', { lineHeight: '1.75rem' }],
+                    '2xl': ['1.5rem', { lineHeight: '2rem' }],
+                    '3xl': ['1.875rem', { lineHeight: '2.25rem' }],
+                    '4xl': ['2.25rem', { lineHeight: '2.5rem' }],
+                    '5xl': ['3rem', { lineHeight: '1' }],
+                    '6xl': ['3.75rem', { lineHeight: '1' }],
+                    '7xl': ['4.5rem', { lineHeight: '1' }],
+                    '8xl': ['6rem', { lineHeight: '1' }],
+                    '9xl': ['8rem', { lineHeight: '1' }],
+                },
+            },
+        },
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- Cropper Setup (unchanged) ---
+        function setupCropper(index) {
+            const imageInput = document.getElementById(`imageInput${index}`);
+            const cropperContainer = document.getElementById(`cropperContainer${index}`);
+            const cropperImage = document.getElementById(`cropperImage${index}`);
+            const cropButton = document.getElementById(`cropButton${index}`);
+            const cancelCropButton = document.getElementById(`cancelCropButton${index}`);
+            const croppedImageData = document.getElementById(`croppedImageData${index}`);
+            let cropper;
+
+            imageInput.addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        if (cropper) {
+                            cropper.destroy();
+                        }
+                        cropperImage.src = e.target.result;
+                        cropperContainer.classList.remove('hidden');
+                        cropper = new Cropper(cropperImage, {
+                            aspectRatio: 4 / 3,
+                            viewMode: 1,
+                            minCropBoxWidth: 200,
+                            minCropBoxHeight: 150
+                        });
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            cropButton.addEventListener('click', function() {
+                if (cropper) {
+                    const croppedCanvas = cropper.getCroppedCanvas({
+                        width: 800,
+                        height: 600,
+                        imageSmoothingEnabled: true,
+                        imageSmoothingQuality: 'high'
+                    });
+                    if (croppedCanvas) {
+                        const base64Image = croppedCanvas.toDataURL('image/jpeg', 0.9);
+                        croppedImageData.value = base64Image;
+                        cropperContainer.classList.add('hidden');
+                        console.log(`Image ${index} cropped successfully`);
+                    }
+                }
+            });
+
+            cancelCropButton.addEventListener('click', function() {
+                imageInput.value = '';
+                cropperContainer.classList.add('hidden');
+                if (cropper) {
+                    cropper.destroy();
+                }
+            });
+        }
+
+        // Setup cropper for all image inputs
+        for (let i = 1; i <= 4; i++) {
+            setupCropper(i);
+        }
+
+        // --- Front-end Validation for Edit Product Form ---
+        const editForm = document.getElementById('editProductForm');
+        editForm.addEventListener('submit', function(e) {
+            let isValid = true;
+
+            // Validate Category
+            const categorySelect = document.querySelector('select[name="category"]');
+            const categoryError = document.getElementById('categoryError');
+            if (!categorySelect.value.trim()) {
+                isValid = false;
+                categoryError.classList.remove('hidden');
+            } else {
+                categoryError.classList.add('hidden');
+            }
+
+            // Validate Product Name (non-empty, non-whitespace)
+            const productNameField = document.getElementById('productNameField');
+            const productNameError = document.getElementById('productNameError');
+            if (!productNameField.value.trim()) {
+                isValid = false;
+                productNameError.classList.remove('hidden');
+            } else {
+                productNameError.classList.add('hidden');
+            }
+
+            // Validate Description (non-empty and max 100 words)
+            const descriptionField = document.getElementById('descriptionField');
+            const descriptionError = document.getElementById('descriptionError');
+            if (!descriptionField.value.trim()) {
+                isValid = false;
+                descriptionError.classList.remove('hidden');
+                descriptionError.textContent = "Description cannot be empty.";
+            } else {
+                const wordCount = descriptionField.value.trim().split(/\s+/).filter(word => word.length > 0).length;
+                if (wordCount > 100) {
+                    isValid = false;
+                    descriptionError.classList.remove('hidden');
+                    descriptionError.textContent = `Description cannot exceed 100 words (currently ${wordCount} words).`;
+                } else {
+                    descriptionError.classList.add('hidden');
+                }
+            }
+
+            // Validate Stock Quantity (must be a number >= 0)
+            const stockQuantityInput = document.querySelector('input[name="stock_quantity"]');
+            const stockQuantityError = document.getElementById('stockQuantityError');
+            const stockQuantityValue = stockQuantityInput.value.trim();
+            if (stockQuantityValue === "" || isNaN(stockQuantityValue) || Number(stockQuantityValue) < 0) {
+                isValid = false;
+                stockQuantityError.classList.remove('hidden');
+            } else {
+                stockQuantityError.classList.add('hidden');
+            }
+
+            // Validate Price (must be a number >= 0)
+            const priceInput = document.querySelector('input[name="price"]');
+            const priceError = document.getElementById('priceError');
+            const priceValue = priceInput.value.trim();
+            if (priceValue === "" || isNaN(priceValue) || Number(priceValue) < 0) {
+                isValid = false;
+                priceError.classList.remove('hidden');
+            } else {
+                priceError.classList.add('hidden');
+            }
+
+            // Validate image cropping for each image if a new file is selected
+            for (let i = 1; i <= 4; i++) {
+                const imageInput = document.getElementById(`imageInput${i}`);
+                const croppedImageData = document.getElementById(`croppedImageData${i}`);
+                const imageError = document.getElementById(`image${i}Error`);
+                if (imageInput.files.length > 0 && !croppedImageData.value.trim()) {
+                    isValid = false;
+                    imageError.classList.remove('hidden');
+                } else {
+                    imageError.classList.add('hidden');
+                }
+            }
+
+            if (!isValid) {
+                e.preventDefault();
+            }
+        });
+    });
+</script>
+</body>
+</html>

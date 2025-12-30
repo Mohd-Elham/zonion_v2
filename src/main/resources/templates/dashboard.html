@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+        <link rel="icon" type="image/x-icon" th:href="@{/images/onion-logo.png}">
+
+
+    <title>Zonion - Food Delivery</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,200,0,0&text=person,shopping_cart,restaurant" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+<!--    <style>-->
+
+<!--        .strikethrough {-->
+<!--            text-decoration: line-through;-->
+<!--            color: #6b7280; /* Gray color for old price */-->
+<!--        }-->
+<!--        .discount-badge {-->
+<!--            background-color: #34d399; /* Green color for discount badge */-->
+<!--            color: white;-->
+<!--            padding: 2px 6px;-->
+<!--            border-radius: 4px;-->
+<!--            font-size: 0.75rem;-->
+<!--            margin-left: 8px;-->
+<!--        }-->
+<!--        @keyframes fadeIn {-->
+<!--            0% { opacity: 0; }-->
+<!--            100% { opacity: 1; }-->
+<!--        }-->
+
+<!--        @keyframes pulse {-->
+<!--            0%, 100% { transform: scale(1); }-->
+<!--            50% { transform: scale(1.05); }-->
+<!--        }-->
+
+<!--        @keyframes bounce {-->
+<!--            0%, 100% { transform: translateY(0); }-->
+<!--            50% { transform: translateY(-10px); }-->
+<!--        }-->
+
+<!--        @keyframes rotateFade {-->
+<!--            0% { transform: rotate(0deg); opacity: 0.8; }-->
+<!--            50% { transform: rotate(180deg); opacity: 1; }-->
+<!--            100% { transform: rotate(360deg); opacity: 0.8; }-->
+<!--        }-->
+
+<!--        @keyframes progressAnimation {-->
+<!--            0% { width: 0%; }-->
+<!--            100% { width: 100%; }-->
+<!--        }-->
+
+<!--        .loading-container {-->
+<!--            animation: fadeIn 1s ease-in-out;-->
+<!--        }-->
+
+<!--        .logo-pulse {-->
+<!--            animation: pulse 2s infinite ease-in-out;-->
+<!--        }-->
+
+<!--        .logo-bounce {-->
+<!--            animation: bounce 1.2s infinite ease-in-out;-->
+<!--        }-->
+
+<!--        .loading-circle {-->
+<!--            animation: rotateFade 2.5s infinite linear;-->
+<!--        }-->
+
+<!--        .progress-bar-animation {-->
+<!--            animation: progressAnimation 3s ease-in-out forwards;-->
+<!--        }-->
+<!--    </style>-->
+</head>
+<body class="font-sans bg-gray-50 min-h-screen">
+
+<!-- Loading Screen -->
+<!--<div id="loadingScreen" class="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center loading-container">-->
+<!--    <div class="flex flex-col items-center justify-center">-->
+<!--        &lt;!&ndash; Logo animation with bounce effect &ndash;&gt;-->
+<!--        <div class="logo-bounce mb-4">-->
+<!--            <img alt="Zonion" class="h-20 sm:h-28 logo-pulse" th:src="@{/images/onion-logo.png}">-->
+<!--        </div>-->
+
+<!--        &lt;!&ndash; Zonion text with fade in &ndash;&gt;-->
+<!--        <h1 class="text-4xl sm:text-5xl font-[800] text-zonion mb-8">ZONION</h1>-->
+
+<!--        &lt;!&ndash; Loading indicator &ndash;&gt;-->
+<!--        <div class="relative w-64 h-2 bg-gray-200 rounded-full overflow-hidden mt-4">-->
+<!--            <div class="absolute top-0 left-0 h-full bg-zonion rounded-full progress-bar-animation"></div>-->
+<!--        </div>-->
+
+<!--        &lt;!&ndash; Loading text &ndash;&gt;-->
+<!--        <p class="text-gray-500 mt-4">Preparing deliciousness...</p>-->
+
+<!--    </div>-->
+<!--</div>-->
+<!-- Navigation Bar -->
+<div id="contentContainer" >
+<nav class="bg-white shadow-sm fixed w-full top-0 z-50">
+    <div class="container mx-auto px-4 py-3">
+        <div class="flex items-center justify-between">
+            <!-- Logo Section -->
+            <div class="flex items-center">
+                <img alt="Zonion" class="h-6 sm:h-8" th:src="@{/images/onion-logo.png}">
+                <h1 class="text-xl sm:text-2xl font-[800] text-zonion ml-2 sm:ml-3">ZONION</h1>
+            </div>
+
+            <!-- Navigation Icons -->
+            <div class="relative">
+                <!-- Person Icon -->
+                <div class="flex items-center gap-3 sm:gap-6">
+                    <a class="inline" th:href="@{/wishlist}">
+                        🖤
+                    </a>
+                    <a th:href="@{orders}" class="text-gray-600 hover:text-zonion transition-colors duration-200 focus:outline-none">
+                        <span class="material-symbols-outlined">restaurant</span>
+                    </a>
+                    <a th:href="@{cart}" class="text-gray-600 hover:text-zonion transition-colors duration-200 focus:outline-none">
+                        <span class="material-symbols-outlined">shopping_cart</span>
+                    </a>
+                    <button id="profileBtn" class="text-gray-600 hover:text-zonion transition-colors duration-200 focus:outline-none">
+                        <span class="material-symbols-outlined">person</span>
+                    </button>
+
+                </div>
+
+                <!-- Dropdown Menu -->
+                <div id="dropdownMenu" class="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-lg shadow-lg hidden">
+                    <a href="/logout" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Logout</a>
+                    <a href="/profile" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">profile</a>
+                </div>
+
+            </div>
+
+
+
+        </div>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<div class="pt-8 sm:pt-12"> <!-- Added padding-top to account for fixed navbar -->
+    <div class="relative min-h-[400px] sm:min-h-[600px] w-full">
+        <div class="absolute inset-0 bg-cover bg-center"
+             style="background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),url('/images/hero-bg.jpg');">
+        </div>
+        <div class="relative z-10 flex flex-col items-center justify-center h-full px-4 py-20 sm:py-32">
+            <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6">
+                What's on your mind?
+            </h1>
+            <p class="text-white text-lg sm:text-xl mb-8">Order Now!</p>
+            <form th:action="@{/search}" method="get" class="w-full max-w-2xl mx-auto">
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <div class="relative flex-grow">
+                        <input type="text" name="query" th:value="${param.query}"
+                               placeholder="Search yummy food!"
+                               class="w-full px-4 py-3 rounded-lg border-2 border-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-lg" />
+                    </div>
+                    <button type="submit"
+                            class="px-6 py-3 bg-zonion text-white rounded-lg hover:bg-purple-700 transition duration-200 shadow-lg">
+                        Search
+                    </button>
+                </div>
+            </form>
+            <a class="px-6 py-3 bg-zonion text-white rounded-lg hover:bg-purple-700 transition duration-200 shadow-lg mt-8 md:mt-20" th:href="@{/shop}">to to shop</a>
+        </div>
+    </div>
+</div>
+
+<!-- Categories Section -->
+<section class="py-16 sm:py-24">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-2xl sm:text-3xl font-bold mb-8 sm:mb-12">Looking for Something?</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+            <div th:each="category : ${categories}"
+                 class="bg-gray-50 rounded-xl p-4 hover:shadow-xl transition duration-300 transform hover:-translate-y-1">
+                <a th:href="@{/category/{id}(id=${category.id})}">
+                    <div class="aspect-square overflow-hidden rounded-full mb-4">
+                        <img th:src="@{${category.image_path}}"
+                             th:alt="${category.category_name}"
+                             class="w-full h-full object-cover">
+                    </div>
+                </a>
+                <h3 class="text-sm sm:text-base font-semibold text-center" th:text="${category.category_name}">
+                    Category Name
+                </h3>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Top Picks Section -->
+<section class="py-16 sm:py-24 bg-gray-50">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-2xl sm:text-3xl font-bold mb-8 sm:mb-12">Top Picks</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+
+            <div th:each="product : ${topProducts}"
+                 class="bg-white rounded-xl shadow-md hover:shadow-xl transition duration-300 transform hover:-translate-y-1">
+
+                <th:block th:if="${product.stockQuantityInt > 0}">
+                    <a th:href="@{/product/{id}(id=${product.id})}" class="hover:text-zonion">
+                </th:block>
+
+                <div class="aspect-video w-full overflow-hidden rounded-t-xl relative">
+                    <div th:if="${product.stockQuantityInt <= 0}"
+                         class="absolute top-2 right-2 bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm">
+                        Out of Stock
+                    </div>
+                    <div th:if="${product.stockQuantityInt > 0 and product.stockQuantityInt < 5}"
+                         class="absolute top-2 right-2 bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm">
+                        Low Stock
+                    </div>
+                    <img th:src="${product.image_1}"
+                         th:alt="${product.product_name}"
+                         class="w-full h-full object-cover"
+                         th:classappend="${product.stockQuantityInt <= 0} ? 'grayscale-image' : ''">
+                </div>
+                <div class="p-4 sm:p-6">
+                    <h3 class="text-lg sm:text-xl font-semibold mb-3" th:text="${product.product_name}">
+                        Product Name
+                    </h3>
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="absolute top-2 left-2 z-10">
+                                <button class="wishlist-toggle"
+                                        th:data-product-id="${product.id}"
+                                        th:classappend="${#lists.contains(wishlistProductIds, product.id)} ? 'text-red-500' : 'text-gray-300'"
+                                        onclick="toggleWishlist(this)">
+                                    <span class="text-xxl bg-white p-2  rounded text-zonion">❤</span>
+                                </button>
+                            </div>
+                            <div th:if="${discountedPrices != null && discountedPrices.containsKey(product.id)}">
+                                <span class="strikethrough text-sm">
+                                    ₹[[${#numbers.formatDecimal(product.price, 1, 2)}]]
+                                </span>
+                                <p class="text-zonion font-semibold text-lg">
+                                    ₹[[${#numbers.formatDecimal(discountedPrices.get(product.id), 1, 2)}]]
+                                    <span class="discount-badge" th:text="${discountTexts.get(product.id)}"></span>
+                                </p>
+                            </div>
+                            <div th:unless="${discountedPrices != null && discountedPrices.containsKey(product.id)}">
+                                <p class="text-zonion font-semibold text-lg">
+                                    ₹[[${#numbers.formatDecimal(product.price, 1, 2)}]]
+                                </p>
+                            </div>
+                            <p th:if="${product.stockQuantityInt > 0}"
+                               class="text-sm text-gray-500">
+                                Stock: <span th:text="${product.stock_quantity}"></span>
+                            </p>
+                        </div>
+                        <button th:disabled="${product.stockQuantityInt <= 0}"
+                                class="bg-zonion text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed">
+                            Add to Cart
+                        </button>
+                    </div>
+                </div>
+
+                <th:block th:if="${product.stockQuantityInt > 0}">
+                    </a>
+                </th:block>
+
+            </div>
+
+        </div>
+    </div>
+</section>
+
+    <div th:if="${showReferralModal}" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 max-w-sm w-full relative">
+            <!-- Skip Form (X button) -->
+            <form th:action="@{/referral-skip}" method="post" class="absolute top-2 right-2">
+                <button type="submit" class="text-gray-500 hover:text-red-600 text-2xl">&times;</button>
+            </form>
+
+            <h3 class="text-2xl font-bold mb-4">Got a Referral Code?</h3>
+
+            <!-- Error Message -->
+            <div th:if="${error}" class="text-red-500 mb-4" th:text="${error}"></div>
+
+            <!-- Apply Form -->
+            <form th:action="@{/apply-referral}" method="post">
+                <input type="text" name="referralCode"
+                       class="w-full p-2 border rounded mb-4"
+                       placeholder="Enter code here">
+
+                <div class="flex gap-2">
+                    <button type="submit"
+                            class="bg-zonion text-white px-4 py-2 rounded hover:bg-purple-700">
+                        Apply
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Referral Applied Modal -->
+    <div th:if="${referralApplied}" id="referralModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+        <div class="bg-white rounded-lg p-6 relative">
+            <!-- Close button -->
+            <button onclick="document.getElementById('referralModal').style.display='none'"
+                    class="absolute top-2 right-2 text-gray-500 hover:text-red-600 text-2xl">
+                &times;
+            </button>
+            <h3 class="text-2xl font-bold mb-4">Referral Code Applied!</h3>
+            <p class="mb-4">Your referee got 100 rs!</p>
+            <button onclick="document.getElementById('referralModal').style.display='none'"
+                    class="bg-zonion text-white px-4 py-2 rounded hover:bg-purple-700">
+                Close
+            </button>
+        </div>
+    </div>
+
+
+    <!-- Footer -->
+<div th:insert="fragments :: footer"></div>
+</div>
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    zonion: '#BC5DC6',
+                },
+                fontFamily: {
+                    'sans': ['Montserrat', 'sans-serif'],
+                },
+                fontWeight: {
+                    'thin': '100',
+                    'extralight': '200',
+                    'light': '300',
+                    'normal': '400',
+                    'medium': '500',
+                    'semibold': '600',
+                    'bold': '700',
+                    'extrabold': '800',
+                    'black': '900',
+                },
+                fontSize: {
+                    'xs': ['0.75rem', { lineHeight: '1rem' }],
+                    'sm': ['0.875rem', { lineHeight: '1.25rem' }],
+                    'base': ['1rem', { lineHeight: '1.5rem' }],
+                    'lg': ['1.125rem', { lineHeight: '1.75rem' }],
+                    'xl': ['1.25rem', { lineHeight: '1.75rem' }],
+                    '2xl': ['1.5rem', { lineHeight: '2rem' }],
+                    '3xl': ['1.875rem', { lineHeight: '2.25rem' }],
+                    '4xl': ['2.25rem', { lineHeight: '2.5rem' }],
+                    '5xl': ['3rem', { lineHeight: '1' }],
+                    '6xl': ['3.75rem', { lineHeight: '1' }],
+                    '7xl': ['4.5rem', { lineHeight: '1' }],
+                    '8xl': ['6rem', { lineHeight: '1' }],
+                    '9xl': ['8rem', { lineHeight: '1' }],
+                },
+            },
+        },
+    };
+
+    async function toggleWishlist(button) {
+
+        event.preventDefault();
+        event.stopPropagation();
+        const productId = button.dataset.productId;
+        try {
+            const response = await fetch(`/wishlist/toggle/${productId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            if (response.ok) {
+                button.classList.toggle('text-red-500');
+                button.classList.toggle('text-gray-300');
+            }
+        } catch (error) {
+            console.error('Error toggling wishlist:', error);
+        }
+    }
+
+    document.getElementById("profileBtn").addEventListener("click", function () {
+        let dropdown = document.getElementById("dropdownMenu");
+        dropdown.classList.toggle("hidden");
+    });
+
+    // Optional: Hide dropdown when clicking outside
+    document.addEventListener("click", function (event) {
+        let dropdown = document.getElementById("dropdownMenu");
+        let profileBtn = document.getElementById("profileBtn");
+
+        if (!profileBtn.contains(event.target) && !dropdown.contains(event.target)) {
+            dropdown.classList.add("hidden");
+        }
+    });
+
+    // Simulate loading and show content after delay
+    // window.addEventListener('DOMContentLoaded', () => {
+    //     setTimeout(() => {
+    //         document.getElementById('loadingScreen').classList.add('opacity-0');
+    //         document.getElementById('loadingScreen').style.transition = 'opacity 0.5s ease-in-out';
+    //
+    //         setTimeout(() => {
+    //             document.getElementById('loadingScreen').classList.add('hidden');
+    //             document.getElementById('contentContainer').classList.remove('hidden');
+    //             document.getElementById('contentContainer').classList.add('opacity-0');
+    //             document.getElementById('contentContainer').style.transition = 'opacity 0.5s ease-in-out';
+    //
+    //             setTimeout(() => {
+    //                 document.getElementById('contentContainer').classList.remove('opacity-0');
+    //                 document.getElementById('contentContainer').classList.add('opacity-100');
+    //             }, 100);
+    //         }, 500);
+    //     }, 2000); // Adjust the loading time as needed (currently 3 seconds)
+    // });
+
+    // Profile dropdown functionality
+
+    // Optional: Hide dropdown when clicking outside
+    document.addEventListener("click", function (event) {
+        let dropdown = document.getElementById("dropdownMenu");
+        let profileBtn = document.getElementById("profileBtn");
+
+        if (!profileBtn.contains(event.target) && !dropdown.contains(event.target)) {
+            dropdown.classList.add("hidden");
+        }
+    });
+</script>
+
+</body>
+</html>

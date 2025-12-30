@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 30px; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .title { font-size: 24px; color: #BC5DC6; }
+        .section { margin-bottom: 25px; }
+        .table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        .table th, .table td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        .table th { background-color: #f8f9fa; }
+        .total { font-size: 18px; font-weight: bold; text-align: right; }
+        .footer { margin-top: 30px; text-align: center; color: #666; }
+    </style>
+</head>
+<body>
+<div class="header">
+    <h1 class="title">Zonion Invoice</h1>
+    <p>Invoice Date: <span th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd HH:mm')}"></span></p>
+</div>
+
+<div class="section">
+    <h3>Order Details</h3>
+    <p>Order ID: <span th:text="${order.id}"></span></p>
+    <p>Order Date: <span th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd HH:mm')}"></span></p>
+</div>
+
+<div class="section">
+    <h3>Items</h3>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Product</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Total</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item : ${order.items}">
+            <td th:text="${productsMap[item.productId].product_name}"></td>
+            <td th:text="${'₹' + #numbers.formatDecimal(item.price, 0, 'COMMA', 2, 'POINT')}"></td>
+            <td th:text="${item.quantity}"></td>
+            <td th:text="${'₹' + #numbers.formatDecimal(item.price * item.quantity, 0, 'COMMA', 2, 'POINT')}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="total">
+    <p>Total Amount: <span th:text="${'₹' + #numbers.formatDecimal(order.totalPrice, 0, 'COMMA', 2, 'POINT')}"></span></p>
+</div>
+
+<div class="footer">
+    <p>Thank you for shopping with Zonion!</p>
+</div>
+</body>
+</html>

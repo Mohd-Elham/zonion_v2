@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Cart - Zonion</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="font-sans bg-gray-50">
+<!-- Navigation -->
+<nav class="bg-white shadow-sm">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-3">
+        <div class="flex items-center justify-between">
+            <a href="/" class="flex-shrink-0">
+                <div class="flex items-center">
+                    <img alt="Zonion" class="h-6 sm:h-8" th:src="@{/images/onion-logo.png}">
+                    <h1 class="text-xl sm:text-2xl font-[800] text-zonion ml-2 sm:ml-3">ZONION</h1>
+                </div>
+            </a>
+        </div>
+    </div>
+</nav>
+
+
+
+<!-- Cart Container -->
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8 mt-3">
+
+    <div class="container mx-auto pb-6">
+        <nav class="flex" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                <li class="inline-flex items-center">
+                    <a href="/" class="text-gray-700 hover:text-zonion">Home</a>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+                        </svg>
+                        <a th:href="@{/cart}" class="text-black font-semibold hover:text-zonion">Cart</a>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+    </div>
+    <h1 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-8">Shopping Cart</h1>
+
+    <!-- Empty Cart Message -->
+    <div th:if="${#lists.isEmpty(cart.items)}" class="text-center py-8 sm:py-16">
+        <h2 class="text-lg sm:text-xl text-gray-600 mb-4">Your cart is empty</h2>
+        <a href="/" class="inline-block bg-zonion text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors">
+            Continue Shopping
+        </a>
+    </div>
+
+    <!-- Cart Items -->
+    <div th:unless="${#lists.isEmpty(cart.items)}" class="grid grid-cols-1 gap-4 sm:gap-8">
+        <!-- Cart Items Table for larger screens -->
+        <div class="hidden sm:block bg-white rounded-lg shadow overflow-hidden">
+            <table class="w-full">
+                <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-4 sm:px-6 py-3 sm:py-4 text-left text-sm font-medium text-gray-500">Product</th>
+                    <th class="px-4 sm:px-6 py-3 sm:py-4 text-left text-sm font-medium text-gray-500">Price</th>
+                    <th class="px-4 sm:px-6 py-3 sm:py-4 text-left text-sm font-medium text-gray-500">Quantity</th>
+<!--                    <th class="px-4 sm:px-6 py-3 sm:py-4 text-left text-sm font-medium text-gray-500">Total</th>-->
+                    <th class="px-4 sm:px-6 py-3 sm:py-4 text-left text-sm font-medium text-gray-500">Action</th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                <tr th:each="item : ${cart.items}">
+                    <td class="px-4 sm:px-6 py-3 sm:py-4">
+                        <div class="flex items-center">
+                            <img th:src="${productsMap[item.productId].image_1}" alt="Product Image" class="w-12 sm:w-16 h-12 sm:h-16 object-cover rounded">
+                            <div class="ml-3 sm:ml-4">
+                                <div class="text-sm font-medium text-gray-900" th:text="${productsMap[item.productId].product_name}"></div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-4 sm:px-6 py-3 sm:py-4">
+                        <div class="product-total"
+                             data-price="[[${T(java.lang.Double).parseDouble(productsMap[item.productId].price)}]]"
+                             data-quantity="[[${item.quantity}]]">
+                            ₹[[${#numbers.formatDecimal(T(java.lang.Double).parseDouble(productsMap[item.productId].price) * item.quantity, 1, 2)}]]
+                        </div>
+                    </td>
+                    <td class="px-4 sm:px-6 py-3 sm:py-4">
+                        <div class="flex items-center">
+                            <form th:action="@{/cart/update/quantity}" method="post">
+                                <input type="hidden" name="productId" th:value="${item.productId}" />
+                                <input type="hidden" name="quantity" th:value="${item.quantity - 1}" />
+                                <button type="submit"
+                                        class="w-6 sm:w-8 h-6 sm:h-8 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center"
+                                        th:disabled="${item.quantity <= 1}">
+                                    -
+                                </button>
+                            </form>
+                            <span class="px-2 sm:px-3" th:text="${item.quantity}"></span>
+                            <form th:action="@{/cart/update/quantity}" method="post">
+                                <input type="hidden" name="productId" th:value="${item.productId}" />
+                                <input type="hidden" name="quantity" th:value="${item.quantity + 1}" />
+                                <button type="submit"
+                                        class="w-6 sm:w-8 h-6 sm:h-8 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center"
+                                        th:disabled="${item.quantity >= 5}">
+                                    +
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+<!--                    <td class="px-4 sm:px-6 py-3 sm:py-4">-->
+<!--                        <div class="text-sm text-gray-900"-->
+<!--                             th:text="${'₹' + #numbers.formatDecimal(productsMap[item.productId].price * item.quantity, 1, 2)}">-->
+<!--                        </div>-->
+<!--                    </td>-->
+                    <td class="px-4 sm:px-6 py-3 sm:py-4 text-left">
+                        <form th:action="@{/cart/remove}" method="post" class="inline">
+                            <input type="hidden" name="productId" th:value="${item.productId}">
+                            <button type="submit" class="text-red-600 hover:text-red-900 transition-colors">
+                                Remove
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Mobile Cart Items -->
+        <div class="sm:hidden space-y-4 mt-4">
+            <div th:each="item : ${cart.items}" class="bg-white rounded-lg shadow p-4">
+                <div class="flex items-start space-x-4">
+                    <img th:src="${productsMap[item.productId].image_1}" alt="Product Image" class="w-20 h-20 object-cover rounded">
+                    <div class="flex-1">
+                        <div class="font-medium text-gray-900" th:text="${productsMap[item.productId].product_name}"></div>
+                        <div class="mt-1 text-sm text-gray-500">
+                            Price: ₹<span th:text="${productsMap[item.productId].price}"></span>
+                        </div>
+                        <div class="mt-2 flex items-center">
+                            <form th:action="@{/cart/update/quantity}" method="post" class="flex items-center">
+                                <input type="hidden" name="productId" th:value="${item.productId}" />
+                                <input type="hidden" name="quantity" th:value="${item.quantity - 1}" />
+                                <button type="submit"
+                                        class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center"
+                                        th:disabled="${item.quantity <= 1}">
+                                    -
+                                </button>
+                                <span class="px-3" th:text="${item.quantity}"></span>
+                                <input type="hidden" name="quantity" th:value="${item.quantity + 1}" />
+                                <button type="submit"
+                                        class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center"
+                                        th:disabled="${item.quantity >= 5}">
+                                    +
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="text-right">
+<!--                        <div class="text-sm font-medium text-gray-900">-->
+<!--                            ₹<span th:text="${#numbers.formatDecimal(productsMap[item.productId].price * item.quantity, 1, 2)}"></span>-->
+<!--                        </div>-->
+                        <form th:action="@{/cart/remove}" method="post" class="mt-2">
+                            <input type="hidden" name="productId" th:value="${item.productId}">
+                            <button type="submit" class="text-sm text-red-600 hover:text-red-900">
+                                Remove
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="bg-white rounded-lg shadow p-4 sm:p-6 mt-4 sm:mt-8">
+            <h2 class="text-lg font-medium mb-4">Order Summary</h2>
+            <div class="space-y-3 sm:space-y-4">
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Subtotal</span>
+                    <span class="font-medium" th:text="${'₹' + #numbers.formatDecimal(cart.totalPrice, 1, 2)}"></span>
+                </div>
+                <div class="flex justify-between text-sm text-gray-500">
+                    <span>Shipping</span>
+                    <span>FREE</span>
+                </div>
+                <div class="border-t pt-3 sm:pt-4">
+                    <div class="flex justify-between font-medium">
+                        <span>Total</span>
+                        <span class="text-zonion" th:text="${'₹' + #numbers.formatDecimal(cart.totalPrice, 1, 2)}"></span>
+                    </div>
+                </div>
+                <a th:href="@{/checkout}" class="w-full bg-zonion text-white text-center py-2 sm:py-3 rounded-lg hover:bg-purple-700 transition-colors block">
+                    Proceed to Checkout
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Error Modal -->
+<div th:if="${error}" id="errorModal" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-lg sm:w-full">
+        <!-- Modal header -->
+        <div class="bg-red-100 px-4 py-3 border-b border-red-200">
+            <h3 class="text-lg font-medium text-red-700">Error</h3>
+        </div>
+
+        <!-- Modal body -->
+        <div class="bg-white px-4 py-5">
+            <div class="text-red-700" th:text="${error}">Error message will appear here</div>
+        </div>
+
+        <!-- Modal footer -->
+        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+            <button type="button" id="closeModal" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
+                Close
+            </button>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    // Tailwind Config
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    zonion: '#BC5DC6',
+                },
+                fontFamily: {
+                    'sans': ['Montserrat', 'sans-serif'],
+                }
+            }
+        }
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var totalElements = document.querySelectorAll('.product-total');
+        totalElements.forEach(function(el) {
+            var price = parseFloat(el.getAttribute('data-price'));
+            var quantity = parseInt(el.getAttribute('data-quantity'), 10);
+            if (!isNaN(price) && !isNaN(quantity)) {
+                var total = price * quantity;
+                el.innerText = '₹' + total.toFixed(2);
+            }
+        });
+    });
+
+    document.getElementById('closeModal').addEventListener('click', function() {
+        document.getElementById('errorModal').style.display = 'none';
+    });
+</script>
+</body>
+</html>

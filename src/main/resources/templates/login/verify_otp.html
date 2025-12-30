@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OTP Verification</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+          rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="font-sans">
+<!-- Navbar remains the same -->
+<nav class="bg-white shadow-sm p-4">
+    <div class="container mx-auto">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center">
+                <img alt="Zonion" class="h-8" th:src="@{/images/onion-logo.png}">
+                <h1 class="text-2xl font-[800] text-zonion ml-3 mt-1.5">ZONION</h1>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<section class="bg-white">
+    <div class="container mx-auto">
+        <div class="flex flex-col items-center justify-center min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+            <div class="max-w-md w-full space-y-8">
+                <div class="text-center">
+                    <h2 class="text-3xl font-extrabold text-gray-900">Verify Your Email</h2>
+                    <p class="mt-2 text-sm text-gray-600">
+                        We've sent a code to your email <br>(otp valid for only 5 minutes).
+                    </p>
+                    <p class="font-medium text-zonion" th:text="${email}"></p>
+                </div>
+
+                <form th:action="@{/verify_otp}" method="post" onsubmit="return collectAndSubmitOTP(event)">
+                    <!-- OTP input fields -->
+                    <div class="flex flex-row justify-center gap-2">
+                        <input type="text"
+                               class=" w-full h-16 text-center placeholder:text-base text-2xl font-bold border-2 rounded-lg focus:border-zonion focus:outline-none"
+                               name="otp" id="otp" placeholder="Enter OTP" maxlength="4" autocomplete="off">
+
+                    </div>
+
+                    <!-- Hidden fields to store the complete OTP and email -->
+                    <!--                    <input type="hidden" name="otp" id="complete-otp">-->
+                    <input type="hidden" name="email" th:value="${email}">
+                    <input type="hidden" name="username" th:value="${username}">
+                    <input type="hidden" name="phone" th:value="${phone}">
+                    <input type="hidden" name="password" th:value="${password}">
+
+                    <button type="submit"
+                            class="group my-6 relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-zonion hover:bg-zonion/90">
+                        Verify
+                    </button>
+
+                </form>
+
+                    <div class="text-center">
+
+
+                        <p class="text-sm text-gray-600">
+                            Didn't receive the code?
+
+                        <form th:action="@{/resent_otp}" method="post">
+                            <input type="hidden" name="email" th:value="${email}">
+                            <input type="hidden" name="username" th:value="${username}">
+                            <input type="hidden" name="phone" th:value="${phone}">
+                            <input type="hidden" name="password" th:value="${password}">
+                            <input type="submit" value="Resend_otp" id="resend-button" class="text-zonion font-medium hover:text-zonion/80">
+<!--                        <button type="submit"-->
+<!--                                    class="text-zonion font-medium hover:text-zonion/80">-->
+<!--                                Resend-->
+<!--                            </button>-->
+
+                        </form>
+
+                        <span id="timer" class="ml-2 text-gray-500"></span>
+                        </p>
+
+                    </div>
+                    <div th:if="${param.error}">
+                        <p class="text-red-600" th:text="${param.error}"></p>
+                    </div>
+
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    // Tailwind config remains the same
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    zonion: '#BC5DC6',
+                },
+                fontFamily: {
+                    'sans': ['Montserrat', 'sans-serif'],
+                }
+            }
+        }
+    };
+
+    // OTP handling logic
+    let resendTimeout;
+
+    function startResendTimer() {
+        const button = document.getElementById('resend-button');
+        const timerDisplay = document.getElementById('timer');
+        // Disable the button
+        button.disabled = true;
+        let timeLeft = 30;
+
+        // Start countdown timer
+        resendTimeout = setInterval(() => {
+            timerDisplay.textContent = `(${timeLeft}s)`;
+            timeLeft--;
+
+            if (timeLeft < 0) {
+                clearInterval(resendTimeout);
+                // Re-enable the button after 30 seconds
+                button.disabled = false;
+                timerDisplay.textContent = '';
+            }
+        }, 1000);
+    }
+
+    // Start the timer when the page loads
+    document.addEventListener('DOMContentLoaded', () => {
+        startResendTimer();
+    });
+
+</script>
+</body>
+</html>

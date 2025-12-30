@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Zonion - Food Delivery</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+          rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="font-sans bg-gray-50">
+<nav class="bg-white shadow-sm p-4">
+    <div class="container mx-auto">
+        <div class="flex items-center">
+            <img th:src="@{/images/onion-logo.png}" alt="Zonion" class="h-8">
+            <h1 class="text-2xl font-[800] text-zonion ml-3 mt-1.5">ZONION</h1>
+        </div>
+    </div>
+</nav>
+
+<main class="container mx-auto px-4 ">
+    <div class="flex flex-col md:flex-row gap-8 items-center justify-center">
+        <!-- Form Section -->
+        <div class="w-full md:w-1/2 max-w-md">
+            <h1 class="text-2xl font-semibold mb-10">Get your freshly prepared meal !!</h1>
+
+            <form th:action="@{/login}" method="post" class="space-y-4">
+                <div>
+                    <span class="text-sm font-bold text-gray-700">Email</span>
+                    <input type="text"
+                           name="email"
+                           placeholder="Username"
+                           class="text-sm placeholder-gray-300 w-full px-2 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                           required>
+                </div>
+                <div>
+                    <span class="text-sm font-bold text-gray-700">Password</span>
+                    <input type="password"
+                           name="password"
+                           placeholder="Password"
+                           class="text-sm placeholder-gray-300 w-full px-2 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                           required>
+                </div>
+
+                <button type="submit"
+                        class="w-full py-2 px-4 bg-purple-500 text-white rounded-md hover:bg-purple-600 transition duration-200">
+                    Login
+                </button>
+                <!-- In login_page.html -->
+                <div th:if="${param.reset_success}" class="text-green-500 text-sm mt-2">
+                    Password reset successfully! You can now login with your new password.
+                </div>
+
+                <div th:if="${param.error}" class="text-red-500 text-sm invalid-feedback justify-center">
+                    Invalid email or password
+                </div>
+                <div th:if="${param.blocked}" class="text-red-500 text-sm font-bold invalid-feedback justify-center">
+                    <span class="text-red-500">  Your account has been blocked!</span>
+                </div>
+
+                <div class="flex items-center justify-center my-12">
+                    <div class="border-t border-gray-600 flex-grow"></div>
+                    <span class="mx-4 text-gray-500 font-medium">OR</span>
+                    <div class="border-t border-gray-600 flex-grow"></div>
+                </div>
+
+                <div class="flex items-center justify-center gap-2 mt-4">
+<!--                    <button type="button"-->
+<!--                            class="w-full flex items-center justify-center gap-2 py-2 px-4 border rounded-md hover:bg-gray-50 transition duration-200">-->
+<!--                        <img src="https://cdn.cdnlogo.com/logos/g/35/google-icon.svg"-->
+<!--                             alt="Google"-->
+<!--                             class="w-5 h-5">-->
+<!--                        Sign in with Google-->
+<!--                    </button>-->
+                    <div class="flex-col items-center text-center justify-center w-full">
+                        <a href="/oauth2/authorization/google"
+                           class="flex items-center gap-2 px-4 py-2 text-center justify-center bg-white border border-gray-300 rounded-lg shadow-md hover:bg-gray-100 transition">
+                            <img src="https://cdn.cdnlogo.com/logos/g/35/google-icon.svg" class="w-5 h-5" alt="Google logo">
+                            <span class="text-gray-700 font-medium">Sign in with Google</span>
+                        </a>
+                        <div class="text-center font-medium mt-8 bg-white border border-gray-200 rounded-lg  hover:bg-gray-100 transition px-4 py-2 " >
+                            <a th:href="@{/forgot_password}" class="  hover:underline">Forgot password?</a>
+
+                        </div>
+                    </div>
+
+
+                </div>
+
+
+            </form>
+
+
+
+
+            <p class="text-center mt-4">
+                new to zonion ?
+                <a th:href="@{/signup}" class="text-blue-600 hover:underline">Sign Up</a>
+            </p>
+        </div>
+
+        <!-- Image Section -->
+        <div class="w-full md:w-1/2 hidden  md:block">
+            <img th:src="@{/images/login-bg.jpg}"
+                 alt="Cooking"
+                 class="rounded-lg shadow-lg w-full h-screen max-w-lg mx-auto"
+                 src="https://images.unsplash.com/photo-1556911220-e15b29be8c8f?ixlib=rb-1.2.1">
+        </div>
+    </div>
+</main>
+</body>
+
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    zonion: '#BC5DC6',
+                },
+                fontFamily: {
+                    'sans': ['Montserrat', 'sans-serif'],
+                },
+                fontWeight: {
+                    'thin': '100',
+                    'extralight': '200',
+                    'light': '300',
+                    'normal': '400',
+                    'medium': '500',
+                    'semibold': '600',
+                    'bold': '700',
+                    'extrabold': '800',
+                    'black': '900',
+                },
+                fontSize: {
+                    'xs': ['0.75rem', { lineHeight: '1rem' }],
+                    'sm': ['0.875rem', { lineHeight: '1.25rem' }],
+                    'base': ['1rem', { lineHeight: '1.5rem' }],
+                    'lg': ['1.125rem', { lineHeight: '1.75rem' }],
+                    'xl': ['1.25rem', { lineHeight: '1.75rem' }],
+                    '2xl': ['1.5rem', { lineHeight: '2rem' }],
+                    '3xl': ['1.875rem', { lineHeight: '2.25rem' }],
+                    '4xl': ['2.25rem', { lineHeight: '2.5rem' }],
+                    '5xl': ['3rem', { lineHeight: '1' }],
+                    '6xl': ['3.75rem', { lineHeight: '1' }],
+                    '7xl': ['4.5rem', { lineHeight: '1' }],
+                    '8xl': ['6rem', { lineHeight: '1' }],
+                    '9xl': ['8rem', { lineHeight: '1' }],
+                },
+            },
+        },
+    };
+</script>
+
+</html>

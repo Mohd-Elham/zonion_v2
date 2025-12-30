@@ -1,0 +1,368 @@
+<!-- src/main/resources/templates/admin/inventory.html -->
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+          rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>inventory</title>
+</head>
+<body>
+
+<!-- Header Fragment -->
+<div th:fragment="header">
+    <nav class="bg-white shadow-sm p-4">
+        <div class="container mx-auto">
+            <div class="flex items-center justify-between">
+                <a href="/"><div class="flex items-center">
+                    <img th:src="@{/images/onion-logo.png}" alt="Zonion" class="h-8">
+                    <h1 class="text-2xl font-[800] text-zonion ml-3 mt-1.5">ZONION</h1>
+                </div></a>
+            </div>
+        </div>
+    </nav>
+</div>
+
+<div class="flex">
+    <!-- Sidebar -->
+    <div class="flex-col w-64 h-screen border-r bg-white">
+        <div class="text-xl text-zonion font-[600] p-8 border-b">Admin Dashboard</div>
+
+        <!-- Navigation Items -->
+        <nav class="mt-4">
+
+            <a href="/admin_dashboard/main" class="flex items-center px-8 py-3  hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Admin Dashboard</span>
+            </a>
+            <a href="/admin_dashboard" class="flex items-center px-8 py-3    hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Users</span>
+            </a>
+            <a href="/admin_dashboard/products" class="flex items-center px-8 py-3   hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Products</span>
+            </a>
+            <a href="/admin_dashboard/category" class="flex items-center px-8 py-3 text-gray-700 hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Categories</span>
+            </a>
+            <a href="/admin/orders" class="flex items-center px-8 py-3  bg-purple-50 hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Orders</span>
+            </a>
+            <a href="/admin_dashboard/inventory" class="flex text-zonion items-center px-8 py-3  bg-purple-50 hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">inventory</span>
+            </a>
+            <a href="/admin_dashboard/coupons"
+               class="flex items-center px-8 py-3     hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Coupons</span>
+            </a>
+            <a href="/admin_dashboard/offers"
+               class="flex items-center px-8 py-3  hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Offers</span>
+            </a>
+            <a href="/admin_dashboard/sales-report"
+               class="flex items-center px-8 py-3 hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Sales Report</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 p-8">
+        <div class="flex items-center justify-between">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">Inventory Management</h2>
+            </div>
+
+            <button id="showHistory" class="mr-8 px-4 py-2 text-white bg-zonion hover:bg-pink-500 rounded">Show History</button>
+        </div>
+
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Image</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product Name</th>
+<!--                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>-->
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Stock</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="product : ${products}" th:attr="data-product-id=${product.id}">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <img th:if="${product.image_1}"
+                             th:src="@{${product.image_1}}"
+                             class="h-12 w-12 rounded-full object-cover">
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap" th:text="${product.product_name}"></td>
+                    <!--          <td class="px-6 py-4 whitespace-nowrap" th:text="${product.category}"></td>-->
+<!--                    <td class="px-6 py-4 whitespace-nowrap" th:text="${categoryMap.get(product.category)}"></td>-->
+                    <td class="px-6 py-4 whitespace-nowrap" th:text="'₹' + ${#numbers.formatDecimal(product.price, 1, 2)}"></td>
+<!--                    <td class="px-6 py-4 whitespace-nowrap" th:text="${product.stock_quantity}"></td>-->
+                    <!-- Existing columns -->
+                    <td class="px-6 py-4" th:text="${product.getStockQuantityInt()}"></td>
+                    <td class="px-6 py-4">
+                        <button @click="openModal(${product.id}, ${product.getStockQuantityInt()})"
+                                class="text-zonion hover:text-purple-700">
+                            Adjust Stock
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Adjustment Modal -->
+<div id="stockModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+    <div class="bg-white p-6 rounded-lg w-96">
+        <h3 class="text-lg font-bold mb-4">Adjust Stock</h3>
+        <form th:action="@{/admin_dashboard/inventory/adjust}" method="post">
+            <input type="hidden" id="productIdInput" name="productId" value="">
+
+            <div class="mb-4">
+                <label class="block mb-2">Current Stock</label>
+                <p id="currentStockDisplay" class="font-semibold"></p>
+            </div>
+
+            <div class="mb-4">
+                <label class="block mb-2">Action</label>
+                <select name="action" class="w-full p-2 border rounded" required>
+                    <option value="add">Add Stock</option>
+                    <option value="subtract">Subtract Stock</option>
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label class="block mb-2">Quantity</label>
+                <input type="number" name="quantity"
+                       class="w-full p-2 border rounded"
+                       min="1" required>
+            </div>
+
+            <div class="mb-4">
+                <label class="block mb-2">Notes</label>
+                <textarea name="notes" class="w-full p-2 border rounded" required></textarea>
+            </div>
+
+            <div class="flex justify-end gap-3">
+                <button type="button" id="cancelButton"
+                        class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded">
+                    Cancel
+                </button>
+                <button type="submit"
+                        class="px-4 py-2 bg-zonion text-white rounded hover:bg-purple-700">
+                    Save
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- History Modal -->
+<div id="historyModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+    <div class="bg-white p-6 rounded-lg w-3/4 max-h-[80vh] overflow-y-auto">
+        <h3 class="text-lg font-bold mb-4">Inventory Adjustment History</h3>
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+            <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Previous</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Adjustment</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">New</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Notes</th>
+            </tr>
+            </thead>
+            <tbody id="historyTbody" class="bg-white divide-y divide-gray-200">
+            <tr th:each="h : ${history}">
+                <td class="px-6 py-4" th:text="${h.history.date}"></td>
+                <td class="px-6 py-4" th:text="${h.product.product_name}"></td>
+                <td class="px-6 py-4 bg-gray-100" th:text="${h.history.previousStock}"></td>
+                <td class="px-6 py-4"
+                    th:classappend="${h.history.adjustment > 0 ? 'text-green-600' : 'text-red-600'}"
+                    th:text="${h.history.adjustment > 0 ? '+' + h.history.adjustment : h.history.adjustment}"></td>
+                <td class="px-6 py-4"
+                    th:classappend="${h.history.newStock > h.history.previousStock ? 'bg-green-50' : 'bg-red-50'}"
+                    th:text="${h.history.newStock}"></td>
+                <td class="px-6 py-4" th:text="${h.history.notes}"></td>
+            </tr>
+            </tbody>
+        </table>
+        <div class="mt-4 flex justify-end">
+            <button id="closeHistory" class="px-4 py-2 bg-zonion text-white rounded hover:bg-purple-700">
+                Close
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    zonion: '#BC5DC6',
+                },
+                fontFamily: {
+                    'sans': ['Montserrat', 'sans-serif'],
+                },
+                fontWeight: {
+                    'thin': '100',
+                    'extralight': '200',
+                    'light': '300',
+                    'normal': '400',
+                    'medium': '500',
+                    'semibold': '600',
+                    'bold': '700',
+                    'extrabold': '800',
+                    'black': '900',
+                },
+                fontSize: {
+                    'xs': ['0.75rem', { lineHeight: '1rem' }],
+                    'sm': ['0.875rem', { lineHeight: '1.25rem' }],
+                    'base': ['1rem', { lineHeight: '1.5rem' }],
+                    'lg': ['1.125rem', { lineHeight: '1.75rem' }],
+                    'xl': ['1.25rem', { lineHeight: '1.75rem' }],
+                    '2xl': ['1.5rem', { lineHeight: '2rem' }],
+                    '3xl': ['1.875rem', { lineHeight: '2.25rem' }],
+                    '4xl': ['2.25rem', { lineHeight: '2.5rem' }],
+                    '5xl': ['3rem', { lineHeight: '1' }],
+                    '6xl': ['3.75rem', { lineHeight: '1' }],
+                    '7xl': ['4.5rem', { lineHeight: '1' }],
+                    '8xl': ['6rem', { lineHeight: '1' }],
+                    '9xl': ['8rem', { lineHeight: '1' }],
+                },
+            },
+        },
+    };
+    // Wait for the DOM to be fully loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get references to the form elements
+        const stockForm = document.querySelector('form[action="/admin_dashboard/inventory/adjust"]');
+        const actionSelect = stockForm.querySelector('select[name="action"]');
+        const quantityInput = stockForm.querySelector('input[name="quantity"]');
+        const currentStockDisplay = document.getElementById('currentStockDisplay');
+
+        // Create error message element
+        const errorElement = document.createElement('p');
+        errorElement.className = 'text-red-500 text-sm mt-1 hidden';
+        quantityInput.parentNode.appendChild(errorElement);
+
+        // Add form submission validation
+        stockForm.addEventListener('submit', function(event) {
+            // Get the current stock value from the display
+            const currentStock = parseInt(currentStockDisplay.textContent);
+            const quantity = parseInt(quantityInput.value);
+            const action = actionSelect.value;
+
+            // Validate and show/hide error message
+            const isValid = validateStockAdjustment(currentStock, quantity, action);
+
+            // If validation fails, prevent form submission
+            if (!isValid) {
+                event.preventDefault();
+                return false;
+            }
+
+            // Form is valid, allow submission
+            return true;
+        });
+
+        // Add real-time validation feedback
+        quantityInput.addEventListener('input', function() {
+            const currentStock = parseInt(currentStockDisplay.textContent);
+            const quantity = parseInt(quantityInput.value) || 0;
+            const action = actionSelect.value;
+
+            validateStockAdjustment(currentStock, quantity, action);
+        });
+
+        actionSelect.addEventListener('change', function() {
+            const currentStock = parseInt(currentStockDisplay.textContent);
+            const quantity = parseInt(quantityInput.value) || 0;
+            const action = actionSelect.value;
+
+            validateStockAdjustment(currentStock, quantity, action);
+        });
+
+        function validateStockAdjustment(currentStock, quantity, action) {
+            // Determine if there's an error and what the message should be
+            let errorMessage = null;
+
+            if (quantity <= 0) {
+                errorMessage = "Quantity must be greater than 0";
+            } else if (action === 'add' && quantity > 15) {
+                errorMessage = "Cannot add more than 15 units at once";
+            } else if (action === 'subtract' && quantity > currentStock) {
+                errorMessage = "Cannot remove more stock than available (Current: " + currentStock + ")";
+            }
+
+            // Update error element and input styling
+            if (errorMessage) {
+                errorElement.textContent = errorMessage;
+                errorElement.classList.remove('hidden');
+                quantityInput.classList.add('border-red-500');
+                return false;
+            } else {
+                errorElement.classList.add('hidden');
+                quantityInput.classList.remove('border-red-500');
+                return true;
+            }
+        }
+    });
+
+    // Wait for the DOM to be fully loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get references to the modal and its elements
+        const modal = document.getElementById('stockModal');
+        const productIdInput = document.getElementById('productIdInput');
+        const currentStockDisplay = document.getElementById('currentStockDisplay');
+        const cancelButton = document.getElementById('cancelButton');
+
+        // Get all "Adjust Stock" buttons
+        const adjustButtons = document.querySelectorAll('button.text-zonion');
+
+        // Add click event to each "Adjust Stock" button
+        adjustButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const row = this.closest('tr');
+                const productId = row.dataset.productId; // Correctly get from data attribute
+                const stock = row.querySelector('td:nth-child(4)').textContent.trim();
+
+                productIdInput.value = productId;
+                currentStockDisplay.textContent = stock;
+                modal.classList.remove('hidden');
+            });
+        });
+
+        // Close modal when Cancel button is clicked
+        cancelButton.addEventListener('click', function() {
+            modal.classList.add('hidden');
+        });
+
+        // Close modal when clicking outside of it
+        modal.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                modal.classList.add('hidden');
+            }
+        });
+    });
+
+    const closeHistoryButton = document.getElementById('closeHistory');
+    const showHistoryButton = document.getElementById('showHistory');
+
+    showHistoryButton.addEventListener('click', function() {
+
+                historyModal.classList.remove('hidden');
+
+    });
+    closeHistoryButton.addEventListener('click', function() {
+        historyModal.classList.add('hidden');
+    });
+</script>
+</body>
+</html>

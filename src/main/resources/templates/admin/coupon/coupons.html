@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+          rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Cropper.js CSS and JS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Category Creation with Image Cropping</title>
+</head>
+<body>
+<!-- Header Fragment -->
+<div th:fragment="header">
+    <nav class="bg-white shadow-sm p-4">
+        <div class="container mx-auto">
+            <div class="flex items-center justify-between">
+                <a href="/">
+                    <div class="flex items-center">
+                        <img th:src="@{/images/onion-logo.png}" alt="Zonion" class="h-8">
+                        <h1 class="text-2xl font-[800] text-zonion ml-3 mt-1.5">ZONION</h1>
+                    </div>
+                </a>
+                <div class="flex items-center gap-4">
+                    <button class="p-2 hover:bg-gray-100 rounded-full">
+                        <i data-lucide="bell" class="w-5 h-5 text-gray-600"></i>
+                    </button>
+                    <button class="p-2 hover:bg-gray-100 rounded-full">
+                        <i data-lucide="user" class="w-5 h-5 text-gray-600"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+</div>
+
+<div class="flex">
+    <!-- Sidebar -->
+    <div class="flex-col w-64 h-screen border-r bg-white">
+        <div class="text-xl text-zonion font-[600] p-8 border-b">Admin Dashboard</div>
+
+        <!-- Navigation Items -->
+        <nav class="mt-4">
+
+            <a href="/admin_dashboard/main" class="flex items-center px-8 py-3  hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Admin Dashboard</span>
+            </a>
+            <a href="/admin_dashboard"
+               class="flex items-center px-8 py-3 text-gray-700 hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+
+                <span class="font-medium">Users</span>
+            </a>
+            <a href="/admin_dashboard/products"
+               class="flex items-center px-8 py-3    hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+
+                <span class="font-medium">Products</span>
+            </a>
+            <a href="/admin_dashboard/category"
+               class="flex items-center px-8 py-3   hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Categories</span>
+            </a>
+
+            <a href="/admin/orders"
+               class="flex items-center px-8 py-3   hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Orders</span>
+            </a>
+            <a href="/admin_dashboard/inventory"
+               class="flex items-center px-8 py-3  bg-purple-50 hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">inventory</span>
+            </a>
+            <a href="/admin_dashboard/coupons"
+               class="flex items-center px-8 py-3 bg-purple-50 text-zonion hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Coupons</span>
+            </a>
+            <a href="/admin_dashboard/offers"
+               class="flex items-center px-8 py-3  hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Offers</span>
+            </a>
+            <a href="/admin_dashboard/sales-report"
+               class="flex items-center px-8 py-3 hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Sales Report</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- category Table -->
+    <!-- ... (keep existing head and sidebar) ... -->
+
+    <!-- Categories Table -->
+    <!-- ... (keep existing head and sidebar) ... -->
+
+    <!-- Coupons Table -->
+    <div class="flex-1 p-8">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-gray-800">Coupons</h2>
+            <a href="/admin_dashboard/add_coupon"
+               class="bg-zonion text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors">
+                Add New Coupon
+            </a>
+        </div>
+
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Code</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Discount Type</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Value</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Expiration</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Min Purchase</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                <tr th:each="coupon : ${coupons}">
+                    <td class="px-6 py-4 whitespace-nowrap" th:text="${coupon.couponCode}"></td>
+                    <td class="px-6 py-4 whitespace-nowrap" th:text="${coupon.couponName}"></td>
+                    <td class="px-6 py-4 whitespace-nowrap" th:text="${coupon.discountType}"></td>
+                    <td class="px-6 py-4 whitespace-nowrap" th:text="${coupon.discountValue}"></td>
+                    <td class="px-6 py-4 whitespace-nowrap"
+                        th:text="${#dates.format(coupon.expirationDate, 'dd MMM yyyy')}"></td>
+                    <td class="px-6 py-4 whitespace-nowrap" th:text="${coupon.minimumPurchaseAmount}"></td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <a th:href="@{'/admin_dashboard/coupons/edit/' + ${coupon.id}}"
+                           class="text-zonion hover:text-purple-700 mr-4">Edit</a>
+                        <form th:action="@{/coupons/delete}" method="post" class="inline">
+                            <input type="hidden" name="id" th:value="${coupon.id}">
+
+                        </form>
+                        <button type="button"
+                                class="toggle-coupon-status px-2 py-1 rounded text-white"
+                                th:classappend="${coupon.getisActive()} ? 'bg-green-600' : 'bg-red-600'"
+                                th:text="${coupon.getisActive()} ? 'On' : 'Off'"
+                                th:data-coupon-id="${coupon.id}"
+                                th:data-coupon-code="${coupon.couponCode}"
+                                th:data-is-active="${coupon.getisActive()}"
+                                onclick="openCouponToggleModal(this)"></button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Add this modal for coupon toggle confirmation below the existing toggleModal -->
+    <div id="couponToggleModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl p-6 m-4 max-w-sm w-full">
+            <div class="flex items-center justify-between mb-4">
+                <h3 id="couponModalTitle" class="text-lg font-medium text-gray-900">Confirm Coupon Status Change</h3>
+                <button onclick="closeCouponToggleModal()" class="text-gray-400 hover:text-gray-500">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="mb-6">
+                <p id="couponModalMessage" class="text-sm text-gray-500"></p>
+            </div>
+
+            <div class="flex justify-end space-x-4">
+                <button onclick="closeCouponToggleModal()"
+                        class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors">
+                    Cancel
+                </button>
+                <form id="couponToggleForm" method="post">
+                    <input type="hidden" name="id" id="couponId">
+                    <button type="submit" id="confirmCouponToggleBtn"
+                            class="px-4 py-2 rounded-md text-white transition-colors">
+                        Confirm
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        zonion: '#BC5DC6',
+                    },
+                    fontFamily: {
+                        'sans': ['Montserrat', 'sans-serif'],
+                    },
+                    // ... other Tailwind config remains the same
+                },
+            },
+        };
+        function openCouponToggleModal(button) {
+            const couponId = button.getAttribute('data-coupon-id');
+            const couponCode = button.getAttribute('data-coupon-code');
+            const isActive = button.getAttribute('data-is-active') === 'true';
+            const action = isActive ? 'deactivate' : 'activate';
+            const modalTitle = document.getElementById('couponModalTitle');
+            const modalMessage = document.getElementById('couponModalMessage');
+            const confirmBtn = document.getElementById('confirmCouponToggleBtn');
+            const toggleForm = document.getElementById('couponToggleForm');
+
+            // Set modal content
+            modalTitle.textContent = `${isActive ? 'Deactivate' : 'Activate'} Coupon`;
+            modalMessage.textContent = `Are you sure you want to ${action} coupon "${couponCode}"?`;
+
+            // Set button color and action
+            if (isActive) {
+                confirmBtn.classList.remove('bg-green-500', 'hover:bg-green-600');
+                confirmBtn.classList.add('bg-red-500', 'hover:bg-red-600');
+                confirmBtn.textContent = 'Deactivate Coupon';
+            } else {
+                confirmBtn.classList.remove('bg-red-500', 'hover:bg-red-600');
+                confirmBtn.classList.add('bg-green-500', 'hover:bg-green-600');
+                confirmBtn.textContent = 'Activate Coupon';
+            }
+
+            // Set form action and coupon ID
+            toggleForm.action = `/coupons/toggle/${couponId}`;
+            document.getElementById('couponId').value = couponId;
+
+            // Show modal
+            document.getElementById('couponToggleModal').classList.remove('hidden');
+        }
+
+        function closeCouponToggleModal() {
+            document.getElementById('couponToggleModal').classList.add('hidden');
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function(event) {
+            const modal = document.getElementById('couponToggleModal');
+            if (modal && event.target === modal) {
+                closeCouponToggleModal();
+            }
+        });
+
+        // Close on escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeCouponToggleModal();
+            }
+        });
+
+    </script>
+</body>
+</html>

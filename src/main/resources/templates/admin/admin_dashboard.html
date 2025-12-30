@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+          rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Document</title>
+</head>
+<body>
+<!-- Header Fragment -->
+<div th:fragment="header">
+    <nav class="bg-white shadow-sm p-4">
+        <div class="container mx-auto">
+            <div class="flex items-center justify-between">
+                <a href="/"><div class="flex items-center">
+                    <img th:src="@{/images/onion-logo.png}" alt="Zonion" class="h-8">
+                    <h1 class="text-2xl font-[800] text-zonion ml-3 mt-1.5">ZONION</h1>
+                </div></a>
+            </div>
+        </div>
+    </nav>
+</div>
+
+<div class="flex">
+    <!-- Sidebar -->
+    <div class="flex-col w-64 h-screen border-r bg-white">
+        <div class="text-xl text-zonion font-[600] p-8 border-b">Admin Dashboard</div>
+
+        <!-- Navigation Items -->
+        <nav class="mt-4">
+            <a href="/admin_dashboard/main" class="flex items-center px-8 py-3 hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Admin Dashboard</span>
+            </a>
+            <a href="#" class="flex items-center px-8 py-3 text-zonion bg-purple-50  hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Users</span>
+            </a>
+            <a href="/admin_dashboard/products" class="flex items-center px-8 py-3   hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Products</span>
+            </a>
+            <a href="/admin_dashboard/category" class="flex items-center px-8 py-3 text-gray-700 hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Categories</span>
+            </a>
+            <a href="/admin/orders" class="flex items-center px-8 py-3    hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Orders</span>
+            </a>
+            <a href="/admin_dashboard/inventory" class="flex items-center px-8 py-3    hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">inventory</span>
+            </a>
+            <a href="/admin_dashboard/coupons"
+               class="flex items-center px-8 py-3  hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Coupons</span>
+            </a>
+
+            <a href="/admin_dashboard/offers"
+               class="flex items-center px-8 py-3  hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Offers</span>
+            </a>
+
+            <a href="/admin_dashboard/sales-report"
+               class="flex items-center px-8 py-3 hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Sales Report</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="flex-1 p-8 pb-0">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-gray-800">Users</h2>
+        </div>
+
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <table class="min-w-[500] divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Username</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">email</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Phone Number</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Roles</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">is_active</th>
+                </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                <tr th:each="user : ${users}">
+                    <td class="px-6 py-4 whitespace-nowrap" th:text="${user.username}"></td>
+                    <td class="px-6 py-4 whitespace-nowrap" th:text="${user.email}"></td>
+                    <td class="px-6 py-4 whitespace-nowrap" th:text="${user.phone}"></td>
+                    <td class="px-6 py-4 whitespace-nowrap" th:text="${user.roles}"></td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <button type="button"
+                                class="toggle-user-status px-2 py-1 rounded text-white"
+                                th:classappend="${user.isActive} ? 'bg-green-500' : 'bg-red-500'"
+                                th:text="${user.isActive} ? 'Active' : 'Blocked'"
+                                th:data-user-id="${user.id}"
+                                th:data-user-name="${user.username}"
+                                th:data-is-active="${user.isActive}"
+                                onclick="openToggleModal(this)"></button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Pagination -->
+<div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full">
+        <!-- Results counter -->
+        <div class="text-sm text-gray-700 mb-4 sm:mb-0">
+            <p>
+                Showing
+                <span class="font-medium" th:text="${(currentPage - 1) * 10 + 1}"></span>
+                to
+                <span class="font-medium" th:text="${currentPage * 10 > totalItems ? totalItems : currentPage * 10}"></span>
+                of
+                <span class="font-medium" th:text="${totalItems}"></span>
+                results
+            </p>
+        </div>
+
+        <!-- Pagination Navigation -->
+        <nav aria-label="Pagination" class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+            <!-- Previous Page Button -->
+            <a th:if="${currentPage > 1}"
+               th:href="@{/admin_dashboard(page=${currentPage - 1})}"
+               class="relative inline-flex items-center px-3 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+               aria-label="Previous page">
+                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+                <span class="hidden sm:inline-block ml-1">Previous</span>
+            </a>
+
+            <!-- Page Numbers -->
+            <th:block th:with="startPage=${currentPage <= 2 ? 1 : currentPage - 2},
+                               endPage=${totalPages <= 5 ? totalPages : (currentPage + 2 > totalPages ? totalPages : currentPage + 2)}">
+
+                <!-- First page and ellipsis -->
+                <th:block th:if="${startPage > 1}">
+                    <a th:href="@{/admin_dashboard(page=1)}"
+                       class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">1</a>
+                    <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">...</span>
+                </th:block>
+
+                <!-- Visible page numbers -->
+                <a th:each="pageNum : ${#numbers.sequence(startPage, endPage)}"
+                   th:href="@{/admin_dashboard(page=${pageNum})}"
+                   th:class="${pageNum == currentPage} ?
+                            'relative inline-flex items-center px-4 py-2 border text-sm font-medium bg-blue-600 text-white border-blue-600' :
+                            'relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50'"
+                   th:text="${pageNum}"
+                   th:aria-current="${pageNum == currentPage} ? 'page' : null">
+                </a>
+
+                <!-- Last page and ellipsis -->
+                <th:block th:if="${endPage < totalPages}">
+                    <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">...</span>
+                    <a th:href="@{/admin_dashboard(page=${totalPages})}"
+                       class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+                       th:text="${totalPages}">
+                    </a>
+                </th:block>
+            </th:block>
+
+            <!-- Next Page Button -->
+            <a th:if="${currentPage < totalPages}"
+               th:href="@{/admin_dashboard(page=${currentPage + 1})}"
+               class="relative inline-flex items-center px-3 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+               aria-label="Next page">
+                <span class="hidden sm:inline-block mr-1">Next</span>
+                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                </svg>
+            </a>
+        </nav>
+    </div>
+</div>
+
+<!-- Modal for toggle confirmation -->
+<div id="toggleModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-xl p-6 m-4 max-w-sm w-full">
+        <div class="flex items-center justify-between mb-4">
+            <h3 id="modalTitle" class="text-lg font-medium text-gray-900">Confirm User Status Change</h3>
+            <button onclick="closeToggleModal()" class="text-gray-400 hover:text-gray-500">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+
+        <div class="mb-6">
+            <p id="modalMessage" class="text-sm text-gray-500"></p>
+        </div>
+
+        <div class="flex justify-end space-x-4">
+            <button onclick="closeToggleModal()"
+                    class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors">
+                Cancel
+            </button>
+            <form id="toggleForm" method="post">
+                <!-- CSRF token would be added here if using Spring Security -->
+                <button type="submit" id="confirmToggleBtn"
+                        class="px-4 py-2 rounded-md text-white transition-colors">
+                    Confirm
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+</body>
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    zonion: '#BC5DC6',
+                },
+                fontFamily: {
+                    'sans': ['Montserrat', 'sans-serif'],
+                },
+                fontWeight: {
+                    'thin': '100',
+                    'extralight': '200',
+                    'light': '300',
+                    'normal': '400',
+                    'medium': '500',
+                    'semibold': '600',
+                    'bold': '700',
+                    'extrabold': '800',
+                    'black': '900',
+                },
+                fontSize: {
+                    'xs': ['0.75rem', { lineHeight: '1rem' }],
+                    'sm': ['0.875rem', { lineHeight: '1.25rem' }],
+                    'base': ['1rem', { lineHeight: '1.5rem' }],
+                    'lg': ['1.125rem', { lineHeight: '1.75rem' }],
+                    'xl': ['1.25rem', { lineHeight: '1.75rem' }],
+                    '2xl': ['1.5rem', { lineHeight: '2rem' }],
+                    '3xl': ['1.875rem', { lineHeight: '2.25rem' }],
+                    '4xl': ['2.25rem', { lineHeight: '2.5rem' }],
+                    '5xl': ['3rem', { lineHeight: '1' }],
+                    '6xl': ['3.75rem', { lineHeight: '1' }],
+                    '7xl': ['4.5rem', { lineHeight: '1' }],
+                    '8xl': ['6rem', { lineHeight: '1' }],
+                    '9xl': ['8rem', { lineHeight: '1' }],
+                },
+            },
+        },
+    };
+
+    // Modal functions
+    function openToggleModal(button) {
+        const userId = button.getAttribute('data-user-id');
+        const userName = button.getAttribute('data-user-name');
+        const isActive = button.getAttribute('data-is-active') === 'true';
+        const action = isActive ? 'block' : 'unblock';
+        const modalTitle = document.getElementById('modalTitle');
+        const modalMessage = document.getElementById('modalMessage');
+        const confirmBtn = document.getElementById('confirmToggleBtn');
+        const toggleForm = document.getElementById('toggleForm');
+
+        // Set modal content
+        modalTitle.textContent = `${isActive ? 'Block' : 'Unblock'} User`;
+        modalMessage.textContent = `Are you sure you want to ${action} user "${userName}"?`;
+
+        // Set button color and action
+        if (isActive) {
+            confirmBtn.classList.remove('bg-green-500', 'hover:bg-green-600');
+            confirmBtn.classList.add('bg-red-500', 'hover:bg-red-600');
+            confirmBtn.textContent = 'Block User';
+        } else {
+            confirmBtn.classList.remove('bg-red-500', 'hover:bg-red-600');
+            confirmBtn.classList.add('bg-green-500', 'hover:bg-green-600');
+            confirmBtn.textContent = 'Unblock User';
+        }
+
+        // Set form action
+        toggleForm.action = `/admin/toggle-user/${userId}`;
+
+        // Show modal
+        document.getElementById('toggleModal').classList.remove('hidden');
+    }
+
+    function closeToggleModal() {
+        document.getElementById('toggleModal').classList.add('hidden');
+    }
+
+    // Close modal when clicking outside
+    document.addEventListener('click', function(event) {
+        const modal = document.getElementById('toggleModal');
+        const modalContent = modal.querySelector('div');
+        if (event.target === modal) {
+            closeToggleModal();
+        }
+    });
+
+    // Close on escape key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeToggleModal();
+        }
+    });
+</script>
+</html>

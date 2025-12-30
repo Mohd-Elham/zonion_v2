@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Order Confirmation - Zonion</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Animation Keyframes */
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes scaleIn {
+            0% {
+                transform: scale(0.95);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes checkmark-bounce {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.2);
+            }
+            70% {
+                transform: scale(0.9);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Animation Classes */
+        .animate-slideDown {
+            animation: slideDown 0.6s ease-out forwards;
+        }
+
+        .animate-fadeIn {
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+
+        .animate-scaleIn {
+            animation: scaleIn 0.5s ease-out forwards;
+        }
+
+        .animate-checkmark {
+            animation: checkmark-bounce 0.8s cubic-bezier(0.18, 1.78, 0.66, 0.9) forwards;
+        }
+
+        /* Staggered animation delays */
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+        .delay-4 { animation-delay: 0.4s; }
+
+        /* Hover animations */
+        .hover-lift {
+            transition: transform 0.2s ease;
+        }
+        .hover-lift:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        zonion: {
+                            light: '#D784E0',
+                            DEFAULT: '#BC5DC6',
+                            dark: '#A346AD'
+                        },
+                    },
+                    fontFamily: {
+                        'sans': ['Montserrat', 'sans-serif'],
+                    },
+                },
+            },
+        };
+    </script>
+</head>
+<body class="font-sans bg-gray-50">
+<nav class="bg-white shadow-sm py-2 animate-slideDown">
+    <div class="container mx-auto px-4">
+        <a href="/" class="flex-shrink-0 group">
+            <div class="flex items-center">
+                <img alt="Zonion" class="h-8 transition-transform group-hover:scale-105" th:src="@{/images/onion-logo.png}" />
+                <h1 class="text-xl font-[800] text-zonion ml-2 group-hover:text-zonion-dark transition-colors">ZONION</h1>
+            </div>
+        </a>
+    </div>
+</nav>
+
+<div class="container mx-auto px-4 py-6">
+    <div class="max-w-3xl mx-auto opacity-0 animate-fadeIn">
+        <div class="bg-green-50 rounded-lg p-4 mb-4 text-center animate-scaleIn">
+            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                <i data-feather="check" class="w-6 h-6 text-green-500 animate-checkmark"></i>
+            </div>
+            <h1 class="text-xl font-bold mb-1 text-gray-800">Order Confirmed!</h1>
+            <p class="text-sm text-gray-600">Thank you for shopping with us.</p>
+        </div>
+
+        <div class="bg-white rounded-lg shadow opacity-0 animate-scaleIn delay-1">
+            <div class="grid grid-cols-2 gap-4 p-4 border-b">
+                <div class="opacity-0 animate-fadeIn delay-2">
+                    <p class="text-xs text-gray-500">Order ID</p>
+                    <p class="text-sm font-semibold" th:text="${order.id}">OD123456789</p>
+                </div>
+                <div class="opacity-0 animate-fadeIn delay-2">
+                    <p class="text-xs text-gray-500">Order Date</p>
+                    <p class="text-sm font-semibold" th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd HH:mm')}">2023-12-20 14:30</p>
+                </div>
+            </div>
+
+            <div class="p-4 border-b opacity-0 animate-fadeIn delay-3">
+                <h2 class="text-sm font-semibold mb-2">Order Items</h2>
+                <div th:if="${not #lists.isEmpty(order.items)}">
+                    <ul class="space-y-2">
+                        <li th:each="item : ${order.items}" class="flex justify-between items-center text-sm hover-lift">
+                            <span class="font-medium" th:text="${productsMap[item.productId].product_name}">Product Name</span>
+                            <div class="flex items-center gap-4">
+                                <span class="text-gray-600" th:text="${'Qty: ' + item.quantity}">Qty: 2</span>
+                                <span class="font-semibold" th:text="${'₹' + #numbers.formatDecimal(item.price, 0, 'COMMA', 2, 'POINT')}">₹25.00</span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 p-4 border-b opacity-0 animate-fadeIn delay-3">
+                <div>
+                    <h2 class="text-sm font-semibold mb-2">Shipping Address</h2>
+                    <div th:if="${shippingAddress != null}" class="text-sm hover-lift">
+                        <p class="font-medium" th:text="${shippingAddress.name}">John Doe</p>
+                        <p class="text-gray-600" th:text="${shippingAddress.street}">123 Main St.</p>
+                        <p class="text-gray-600">
+                            <span th:text="${shippingAddress.city}">City</span>,
+                            <span th:text="${shippingAddress.state}">State</span>
+                            - <span th:text="${shippingAddress.zip}">Zip</span>
+                        </p>
+                    </div>
+                </div>
+                <div>
+                    <h2 class="text-sm font-semibold mb-2">Payment Information</h2>
+                    <div th:if="${order.paymentMethod}" class="text-sm hover-lift">
+                        <p class="text-gray-600">Paid via</p>
+                        <p class="font-medium" th:text="${order.paymentMethod}">Credit Card</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 bg-gray-50 rounded-b-lg opacity-0 animate-fadeIn delay-4">
+                <!-- order-confirmation.html -->
+                <div th:if="${order.couponDiscount > 0}" class="flex justify-between items-center">
+                    <span class="text-sm font-semibold">Coupon discount:</span>
+                    <span class="text-green-500" th:text="'-₹' + ${#numbers.formatDecimal(order.couponDiscount, 1, 2)}"></span>
+                </div>
+                <div th:if="${order.offerDiscount > 0}" class="flex justify-between items-center">
+                    <span class="text-sm font-semibold">Offer discount:</span>
+                    <span class="text-green-500" th:text="'-₹' + ${#numbers.formatDecimal(order.offerDiscount, 1, 2)}"></span>
+                </div>
+                <div class="flex justify-between items-center border-t mt-4">
+                    <span class="text-sm font-semibold">Total Amount</span>
+                    <span class="text-lg font-bold text-zonion" th:text="${'₹' + #numbers.formatDecimal(order.totalPrice, 0, 'COMMA', 2, 'POINT')}">₹125.00</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4 flex gap-2 justify-center opacity-0 animate-fadeIn delay-4">
+            <a href="/" class="px-4 py-2 bg-zonion text-white text-sm rounded hover:bg-zonion-dark transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zonion hover-lift">
+                Continue Shopping
+            </a>
+            <button onclick="window.print()" class="px-4 py-2 bg-gray-100 text-gray-700 text-sm rounded hover:bg-gray-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 flex items-center hover-lift">
+                <i data-feather="printer" class="w-4 h-4 mr-1"></i>
+                Print
+            </button>
+            <a th:href="@{/order/{id}/invoice(id=${order.id})}"
+               class="px-4 py-2 bg-zonion text-white text-sm rounded hover:bg-zonion-dark transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zonion hover-lift flex items-center">
+                <i data-feather="download" class="w-4 h-4 mr-1"></i>
+                Download Invoice
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    feather.replace();
+</script>
+</body>
+</html>

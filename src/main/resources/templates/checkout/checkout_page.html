@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Zonion</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+          rel="stylesheet">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        zonion: '#BC5DC6',
+                    },
+                    fontFamily: {
+                        'sans': ['Montserrat', 'sans-serif'],
+                    }
+                }
+            }
+        };
+    </script>
+</head>
+<body class="font-sans bg-gray-50 min-h-screen">
+<!-- Navigation -->
+<nav class="bg-white shadow-sm">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-3">
+        <div class="flex items-center justify-between">
+            <a href="/" class="flex-shrink-0">
+                <div class="flex items-center">
+                    <img alt="Zonion" class="h-6 sm:h-8" th:src="@{/images/onion-logo.png}">
+                    <h1 class="text-xl sm:text-2xl font-[800] text-zonion ml-2 sm:ml-3">ZONION</h1>
+                </div>
+            </a>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <h1 class="text-2xl sm:text-3xl font-bold mb-8">Checkout</h1>
+
+    <!-- Checkout Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Left Column - Address Selection -->
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-semibold">Delivery Address</h2>
+                    <!-- Add Address Button - Outside Form -->
+                    <button type="button" onclick="openAddAddressModal()"
+                            class="bg-zonion text-white px-4 py-2 rounded-md text-sm hover:bg-purple-700 transition-colors">
+                        + Add New Address
+                    </button>
+                </div>
+
+                <!-- Address List -->
+                <div th:unless="${#lists.isEmpty(addresses)}" class="space-y-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div th:each="address : ${addresses}"
+                         class="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <label class="flex items-start cursor-pointer">
+                            <input type="radio"
+                                   name="selectedAddress"
+                                   th:value="${address.id}"
+                                   class="mt-1 mr-3"
+                                   th:checked="${addressStat.first}">
+                            <div class="flex-1">
+                                <h3 class="font-medium" th:text="${address.name}"></h3>
+                                <p class="text-gray-600" th:text="${address.street}"></p>
+                                <p class="text-gray-600">
+                                    <span th:text="${address.city}"></span>,
+                                    <span th:text="${address.state}"></span> -
+                                    <span th:text="${address.zip}"></span>
+                                </p>
+                                <span class="text-sm text-gray-500" th:text="${address.place}"></span>
+                            </div>
+                        </label>
+                        <!-- Add Edit and Delete Buttons -->
+                        <div class="flex gap-3 mt-4">
+                            <button
+                                    class="edit-address text-blue-600 hover:text-blue-800 text-sm font-medium"
+                                    th:data-id="${address.id}"
+                                    th:data-name="${address.name}"
+                                    th:data-street="${address.street}"
+                                    th:data-city="${address.city}"
+                                    th:data-state="${address.state}"
+                                    th:data-zip="${address.zip}"
+                                    th:data-place="${address.place}">
+                                Edit
+                            </button>
+                            <form th:action="@{/profile/address/delete/checkout}" method="post">
+                                <input type="hidden" name="id" th:value="${address.id}">
+<!--                                <input type="hidden" name="redirectTo" value="/checkout">-->
+                                <button type="submit" class="text-red-600 hover:text-red-800 text-sm font-medium">
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- No Address Message -->
+                <div th:if="${#lists.isEmpty(addresses)}" class="text-center py-8">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400 mb-4"
+                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                    </svg>
+                    <p class="text-gray-600 mb-4">No delivery address found</p>
+                    <button type="button" onclick="openAddAddressModal()"
+                            class="text-zonion hover:text-purple-700">
+                        + Add New Address
+                    </button>
+                </div>
+            </div>
+
+            <!-- Payment Section -->
+            <!-- Payment Section -->
+            <div class="bg-white  mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="rounded-lg shadow-lg p-6 ">
+                    <h2 class="text-xl font-semibold mb-6">Coupon code</h2>
+                    <form th:action="@{/checkout/coupon-code}" method="post">
+                        <div class="rounded-lg flex gap-1 items-center mb-3">
+                            <input type="text" name="couponCode" placeholder="Enter coupon code" class="w-full rounded-lg border p-4" th:value="${cart.couponCode}">
+                            <a th:href="@{/checkout/remove-coupon/{id}(id=${cart.id})}"
+                               th:if="${cart.couponCode != null and !#strings.isEmpty(cart.couponCode)}"
+                               class="bg-red-500 text-white px-4 py-4 rounded-md text-sm hover:bg-purple-700 transition-colors">
+                                X
+                            </a>
+                            <button class="bg-zonion text-white px-4 py-4 rounded-md text-sm hover:bg-purple-700 transition-colors">
+                                check
+                            </button>
+                        </div>
+<!--                        <span class="text-sm text-green-500" th:text="${couponCode}"></span>-->
+                        <span class="text-sm " th:text="${couponDescription}"></span>
+                        <span class="text-sm text-red-500" th:text="${couponCodeError}"></span>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Order Summary -->
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-lg shadow-lg p-6 sticky top-6">
+                <h2 class="text-xl font-semibold mb-6">Order Summary</h2>
+
+                <!-- Cart Items Summary -->
+                <div class="space-y-4 mb-6">
+                    <div th:each="item : ${cart.items}" class="flex items-center gap-4">
+                        <img th:src="${productsMap[item.productId].image_1}"
+                             th:alt="${productsMap[item.productId].product_name}"
+                             class="w-16 h-16 object-cover rounded">
+                        <div class="flex-1">
+                            <h4 class="text-md font-medium text-zonion"
+                                th:text="${productsMap[item.productId].product_name}"></h4>
+                            <p class="text-sm text-gray-600">
+                                Qty: <span th:text="${item.quantity}"></span>
+                            </p>
+                            <p class="text-sm font-medium">
+                                ₹<span th:text="${#numbers.formatDecimal(item.price, 1, 2)}"></span>
+                                <span class="text-gray-600"> x<span th:text="${item.quantity}"></span></span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Price Details -->
+                <div class="border-t py-4 space-y-3">
+                    <div class="flex justify-between text-sm">
+                        <span>Subtotal</span>
+                        <span>₹<span th:text="${#numbers.formatDecimal(cart.totalPrice, 1, 2)}"></span></span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span>Delivery</span>
+                        <span class="text-green-600">FREE</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span>Coupon discount amount</span>
+                        <span class="text-green-600" th:text="${cart.getCouponDiscountedValue()}"></span>
+                    </div>
+                    <!-- Subtotal (original price without any discounts) -->
+                    <div class="flex justify-between text-sm">
+                        <span>Subtotal</span>
+                        <span>₹<span th:text="${#numbers.formatDecimal(originalSubtotal, 1, 2)}"></span></span>
+                    </div>
+                    <!-- Offer discounts -->
+                    <div th:if="${cart.offerDiscountedValue > 0}" class="flex justify-between text-sm">
+                        <span>Offer discounts</span>
+                        <span class="text-green-600">-₹<span th:text="${#numbers.formatDecimal(cart.offerDiscountedValue, 1, 2)}"></span></span>
+                    </div>
+                    <!-- Coupon discount -->
+                    <div th:if="${cart.couponDiscountedValue > 0}" class="flex justify-between text-sm">
+                        <span>Coupon discount</span>
+                        <span class="text-green-600">-₹<span th:text="${#numbers.formatDecimal(cart.couponDiscountedValue, 1, 2)}"></span></span>
+                    </div>
+                    <!-- Total -->
+                    <div class="flex justify-between font-medium pt-3 border-t">
+                        <span>Total</span>
+                        <span id="discountedAmount" class="text-zonion">₹<span th:text="${discountedAmount}"></span></span>
+                    </div>
+                </div>
+
+
+
+
+            </div><!-- Place Order Form - Separate from address selection -->
+            <form th:action="@{/checkout/placeholder}" method="post" class="mb-4">
+                <input type="hidden" name="selectedAddress" id="selectedAddressHidden">
+                <input type="hidden" name="paymentMethod" value="COD" id="paymentMethodInput">
+                <input type="hidden" id="couponCodeHidden" name="couponCode" th:value="${cart.couponCode}">
+                <button type="submit"
+                        class="w-full bg-zonion text-white py-3 rounded-lg hover:bg-purple-700 transition-all duration-300 transform hover:scale-[1.02] shadow-md disabled:bg-gray-300 disabled:text-gray-500 disabled:shadow-none disabled:hover:scale-100 disabled:opacity-75"
+                        id="placeOrderBtn">
+            <span class="flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                Place Order (COD)
+            </span>
+                </button>
+                <div id="codMessage" class="text-red-500 text-sm mt-2 hidden opacity-0 transition-opacity duration-300 ease-in-out">
+                    Cash on Delivery not available for orders above ₹1000
+                </div>
+            </form>
+            <!-- Place Order Form - Separate from address selection -->
+            <form th:action="@{/checkout/placeholder/razorpay}" method="post" class="mt-6">
+                <input type="hidden" name="selectedAddress" id="selectedAddressHidden2">
+                <input type="hidden" name="paymentMethod" id="paymentMethodInput2">
+                <input type="hidden" name="totalAmount" id="totalAmountHidden2" th:value="${discountedAmount}">
+                <!--                    <input type="radio" name="paymentMethod" value="COD" checked>-->
+                <!--                    <input type="radio" name="paymentMethod" value="RAZOR_PAY">-->
+
+                <input type="hidden" id="couponCodeHidden2" name="couponCode" th:value="${cart.couponCode}">
+                <button type="button"
+                        class="w-full bg-zonion text-white py-3 rounded-lg hover:bg-purple-700 transition-colors"
+                        id="razorpayBtn">
+                    Place Order Razorpay
+                </button>
+            </form>
+
+            <form th:action="@{/checkout/placeholder/wallet}" method="post" class="mt-6" id="walletForm">
+                <input type="hidden" name="selectedAddress" id="selectedAddressHidden3">
+                <input type="hidden" name="paymentMethod" value="WALLET" id="paymentMethodInput3">
+                <input type="hidden" id="couponCodeHidden3" name="couponCode" th:value="${cart.couponCode}">
+                <button type="button"
+                        class="w-full bg-zonion text-white py-3 rounded-lg hover:bg-purple-700 transition-colors"
+                        id="walletBtn">
+                    Pay with Wallet (Balance: ₹<span class="font-bold" id="walletBalance" th:text="${balance}"></span>)
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Add Address Modal -->
+<div id="addAddressModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
+    <div class="relative top-20 mx-auto w-64 sm:w-1/2 p-3 md:p-5 border shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <h3 class="text-sm md:text-lg leading-6 font-medium text-gray-900 mb-4">Add New Address</h3>
+
+            <form id="addressForm" th:action="@{/profile/address/add/checkout}" method="post" class="space-y-4">
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700">Receiver's Name</label>
+                    <input type="text" id="name" name="name"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-zonion focus:ring-zonion p-2 border">
+                    <span id="nameError" class="text-red-500 text-xs mt-1 hidden"></span>
+                </div>
+
+                <div>
+                    <label for="street" class="block text-sm font-medium text-gray-700">Street Address</label>
+                    <input type="text" id="street" name="street"
+                           class="mt-1 w-full block rounded-md border-gray-300 shadow-sm focus:border-zonion focus:ring-zonion p-2 border">
+                    <span id="streetError" class="text-red-500 text-xs mt-1 hidden"></span>
+                </div>
+
+                <div>
+                    <label for="city" class="block text-sm font-medium text-gray-700">City</label>
+                    <input type="text" id="city" name="city"
+                           class="mt-1 w-full block rounded-md border-gray-300 shadow-sm focus:border-zonion focus:ring-zonion p-2 border">
+                    <span id="cityError" class="text-red-500 text-xs mt-1 hidden"></span>
+                </div>
+
+                <div>
+                    <label for="state" class="block text-sm font-medium text-gray-700">State</label>
+                    <input type="text" id="state" name="state"
+                           class="mt-1 w-full block rounded-md border-gray-300 shadow-sm focus:border-zonion focus:ring-zonion p-2 border">
+                    <span id="stateError" class="text-red-500 text-xs mt-1 hidden"></span>
+                </div>
+
+                <div>
+                    <label for="zip" class="block text-sm font-medium text-gray-700">ZIP Code</label>
+                    <input type="text" id="zip" name="zip" minlength="6" maxlength="6" pattern="[0-9]{6}"
+                           class="mt-1 w-full block rounded-md border-gray-300 shadow-sm focus:border-zonion focus:ring-zonion p-2 border">
+                    <span id="zipError"
+                          class="text-red-500 text-xs mt-1 hidden">ZIP Code must be exactly 6 digits.</span>
+                </div>
+
+                <div>
+                    <label for="place" class="block text-sm font-medium text-gray-700">Address Type</label>
+                    <select id="place" name="place"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-zonion focus:ring-zonion p-2 border">
+                        <option value="">Select Type</option>
+                        <option value="HOME">Home</option>
+                        <option value="WORK">Work</option>
+                        <option value="OTHER">Other</option>
+                    </select>
+                    <span id="placeError" class="text-red-500 text-xs mt-1 hidden"></span>
+                </div>
+
+                <input type="hidden" name="userId" th:value="${userId}">
+                <input type="hidden" name="redirectTo" value="/checkout">
+
+                <div class="flex justify-end gap-3 mt-5">
+                    <button type="button" onclick="closeModal()"
+                            class="px-4 py-2 bg-gray-100 text-gray-700 text-base font-medium rounded-md shadow-sm hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            class="px-4 py-2 bg-zonion text-white text-base font-medium rounded-md shadow-sm hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-zonion">
+                        Add Address
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Address Modal -->
+<div id="editAddressModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
+    <div class="relative top-20 mx-auto w-64 sm:w-1/2 p-3 md:p-5 border shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <h3 class="text-sm md:text-lg leading-6 font-medium text-gray-900 mb-4">Edit Address</h3>
+
+            <form id="editForm" th:action="@{/profile/address/edit/checkout}" method="post" class="space-y-4">
+                <input type="hidden" id="editId" name="id">
+                <div>
+                    <label for="editName" class="block text-sm font-medium text-gray-700">Receiver's Name</label>
+                    <input type="text" id="editName" name="name"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-zonion focus:ring-zonion p-2 border">
+                    <span id="editNameError" class="text-red-500 text-xs mt-1 hidden"></span>
+                </div>
+
+                <div>
+                    <label for="editStreet" class="block text-sm font-medium text-gray-700">Street Address</label>
+                    <input type="text" id="editStreet" name="street"
+                           class="mt-1 w-full block rounded-md border-gray-300 shadow-sm focus:border-zonion focus:ring-zonion p-2 border">
+                    <span id="editStreetError" class="text-red-500 text-xs mt-1 hidden"></span>
+                </div>
+
+                <div>
+                    <label for="editCity" class="block text-sm font-medium text-gray-700">City</label>
+                    <input type="text" id="editCity" name="city"
+                           class="mt-1 w-full block rounded-md border-gray-300 shadow-sm focus:border-zonion focus:ring-zonion p-2 border">
+                    <span id="editCityError" class="text-red-500 text-xs mt-1 hidden"></span>
+                </div>
+
+                <div>
+                    <label for="editState" class="block text-sm font-medium text-gray-700">State</label>
+                    <input type="text" id="editState" name="state"
+                           class="mt-1 w-full block rounded-md border-gray-300 shadow-sm focus:border-zonion focus:ring-zonion p-2 border">
+                    <span id="editStateError" class="text-red-500 text-xs mt-1 hidden"></span>
+                </div>
+
+                <div>
+                    <label for="editZip" class="block text-sm font-medium text-gray-700">ZIP Code</label>
+                    <input type="text" id="editZip" name="zip" minlength="6" maxlength="6" pattern="[0-9]{6}"
+                           class="mt-1 w-full block rounded-md border-gray-300 shadow-sm focus:border-zonion focus:ring-zonion p-2 border">
+                    <span id="editZipError"
+                          class="text-red-500 text-xs mt-1 hidden">ZIP Code must be exactly 6 digits.</span>
+                </div>
+
+                <div>
+                    <label for="editPlace" class="block text-sm font-medium text-gray-700">Address Type</label>
+                    <select id="editPlace" name="place"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-zonion focus:ring-zonion p-2 border">
+                        <option value="">Select Type</option>
+                        <option value="HOME">H ome</option>
+                        <option value="WORK">Work</option>
+                        <option value="OTHER">Other</option>
+                    </select>
+                    <span id="editPlaceError" class="text-red-500 text-xs mt-1 hidden"></span>
+                </div>
+
+                <input type="hidden" name="userId" th:value="${userId}">
+                <input type="hidden" name="redirectTo" value="/checkout">
+
+                <div class="flex justify-end gap-3 mt-5">
+                    <button type="button" onclick="closeEditModal()"
+                            class="px-4 py-2 bg-gray-100 text-gray-700 text-base font-medium rounded-md shadow-sm hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            class="px-4 py-2 bg-zonion text-white text-base font-medium rounded-md shadow-sm hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-zonion">
+                        Update Address
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- Payment Error Modal -->
+<div id="paymentErrorModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3 text-center">
+            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+            </div>
+            <h3 class="text-lg leading-6 font-medium text-gray-900 mt-2" id="paymentErrorTitle"></h3>
+            <div class="mt-2 px-4 py-2">
+                <p class="text-sm text-gray-500" id="paymentErrorMessage">Something went wrong during the payment process. If the amount was deducted from your account, it will be refunded within three working days. </p>
+            </div>
+            <div class="items-center px-4 py-3">
+                <button onclick="closePaymentErrorModal()"
+                        class="px-4 py-2 bg-zonion text-white text-base font-medium rounded-md shadow-sm hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-zonion">
+                    Try Again
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+
+
+    // Add wallet payment validation
+    document.getElementById('walletBtn').addEventListener('click', function(e) {
+        e.preventDefault();
+
+        // Get balance and total amount
+        const balance = parseFloat(document.getElementById('walletBalance').textContent);
+        const totalAmount = parseFloat(document.getElementById('discountedAmount').textContent.replace(/[^\d.]/g, ''));
+
+        if (balance < totalAmount) {
+            alert('Insufficient wallet balance. Please choose another payment method.');
+            return;
+        }
+
+        if (!confirm(`Confirm payment of ₹${totalAmount} from your wallet?`)) {
+            return;
+        }
+
+        // Set selected address
+        const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked').value;
+        document.getElementById('selectedAddressHidden3').value = selectedAddress;
+
+        // Submit the form
+        document.getElementById('walletForm').submit();
+    });
+
+    window.onload = function () {
+        const addressRadios = document.querySelectorAll('input[name="selectedAddress"]');
+        if (addressRadios.length > 0) {
+            addressRadios[0].checked = true;
+            document.getElementById('selectedAddressHidden').value = addressRadios[0].value; // Corrected ID
+        } else {
+            document.getElementById('placeOrderBtn').disabled = true;
+        }
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set the hidden input to the default checked radio value
+        const defaultRadio = document.querySelector('input[name="paymentMethod"]:checked');
+        if(defaultRadio) {
+            document.getElementById('paymentMethodInput').value = defaultRadio.value;
+        }
+
+        const defaultRadio2 = document.querySelector('input[name="addressSelection"]:checked');
+        if (defaultRadio2) {
+            document.getElementById('selectedAddressHidden').value = defaultRadio2.value;
+        }
+        // Update the hidden input when a radio button is selected
+        document.querySelectorAll('input[name="selectedAddress"]').forEach(radio => {
+            radio.addEventListener('change', function () {
+                document.getElementById('selectedAddressHidden').value = this.value; // Already correct
+                document.getElementById('placeOrderBtn').disabled = false;
+            });
+        });
+
+        // Listen for changes on the radio buttons
+        document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
+            radio.addEventListener('change', function () {
+                document.getElementById('paymentMethodInput').value = this.value;
+                document.getElementById('placeOrderBtn').disabled = false;
+            });
+        });
+    });
+
+
+    async function createOrder() {
+
+        let amountText = document.getElementById('discountedAmount').innerText;
+
+        let amountValue = amountText.replace(/[^\d.]/g, '');
+        let amount = parseFloat(amountValue);
+
+        if (isNaN(amount)) {
+            console.error("Invalid amount!");
+            return;
+        }
+
+        // Convert to paise (1 INR = 100 paise)
+        const amountInPaise = Math.round(amount * 100); // Handle rounding for decimals
+
+        const response = await fetch("/create-razorpay-order", {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                amount: amountInPaise
+            })
+        });
+        return await response.json();
+    }
+
+    function closePaymentErrorModal() {
+        document.getElementById('paymentErrorModal').classList.add('hidden');
+    }
+    document.getElementById('razorpayBtn').onclick = async function (e) {
+        try {
+            const razorDTO = await createOrder();
+            const modal2 = document.getElementById('paymentErrorModal');
+
+            function showPaymentError(title, message) {
+                alert("Payment Error: " + title + "\n" + message);
+
+            }
+
+
+
+
+            var options = {
+                "key": "rzp_test_RSZU6lPKkrRJRt", // Replace with your Razorpay key
+                "amount": razorDTO.amount, // Convert to paise
+                "currency": "INR",
+                "name": razorDTO.name,
+                "description": "Test Transaction",
+                "order_id": razorDTO.razorpayId, // Match Java field
+                "receipt": razorDTO.email,
+                "prefill": {
+                    "name": razorDTO.name,
+                    "email": razorDTO.email
+                },
+                "theme": {
+                    "color": "#3399cc"
+                },
+                "handler": function (response) {
+                    // If payment is successful, redirect to success page
+                    fetch("/checkout/placeholder/razorpay", {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            razorpayId: razorDTO.razorpayId,
+                            selectedAddress: document.getElementById('selectedAddressHidden').value,
+                            paymentMethod: document.getElementById('paymentMethodInput').value,
+                            couponCode: document.getElementById('couponCodeHidden2').value,
+                        })
+                    }).then(response => response.json()) // Parse JSON response
+                        .then(data => {
+                            if (data.orderId) {
+                                // Redirect with order ID
+                                window.location.href = `/order-confirmation/${data.orderId}`;
+                            } else if (data.error) {
+                                alert("Error: " + data.error);
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Error:", error);
+                            alert("Payment processing failed");
+                        });
+                },
+                "modal": {
+                    "ondismiss": function () {
+
+
+
+                        // document.getElementById('paymentErrorTitle').textContent = title;
+                        // document.getElementById('paymentErrorMessage').textContent = message;
+
+                        // alert("Payment Error: ");
+                        // modal2.classList.remove('hidden');
+
+                        // fetch("/checkout/payment-failed", {
+                        //     method: 'POST',
+                        //     headers: { 'Content-Type': 'application/json' },
+                        //     body: JSON.stringify({ cartId: cart.id })
+                        // });
+                        window.location.href = `/checkout/payment-failed`;
+
+                        // showPaymentError('Payment Failed', errorMessage);
+
+                    }
+                }
+            };
+
+            var rzp1 = new Razorpay(options);
+
+            rzp1.on('payment.failed', function (response) {
+                const error = response.error;
+                let errorMessage = error.description || 'Payment failed. Please try again.';
+
+                if (error.code === 'PAYMENT_CANCELLED') {
+                    errorMessage = 'Payment was cancelled by the user';
+                }
+
+                showPaymentError('Payment Failed', errorMessage);
+            });
+            rzp1.open();
+        } catch (error) {
+            console.error("Payment failed:", error);
+            showPopup("Something went wrong. Please try again.");
+        }
+        e.preventDefault();
+    };
+
+    // Handle address selection
+    document.querySelectorAll('input[name="selectedAddress"]').forEach(radio => {
+        radio.addEventListener('change', function () {
+            document.getElementById('selectedAddress').value = this.value; // Corrected ID
+            document.getElementById('placeOrderBtn').disabled = false;
+        });
+    });
+
+    document.querySelectorAll('input[name="selectedAddress"]').forEach(radio => {
+        radio.addEventListener('change', function () {
+            document.getElementById('selectedAddress').value = this.value; // Corrected ID
+            document.getElementById('placeOrderBtn').disabled = false;
+        });
+    });
+
+
+    // Auto-select first address if available
+
+    // Add Address Modal Handling
+    const addAddressModal = document.getElementById('addAddressModal');
+    const editAddressModal = document.getElementById('editAddressModal');
+
+    function openAddAddressModal() {
+        addAddressModal.classList.remove('hidden');
+    }
+
+    function closeModal() {
+        addAddressModal.classList.add('hidden');
+        resetFormErrors('addressForm');
+        document.getElementById('addressForm').reset();
+    }
+
+    function openEditModal(addressId, name, street, city, state, zip, place) {
+        document.getElementById('editId').value = addressId;
+        document.getElementById('editName').value = name;
+        document.getElementById('editStreet').value = street;
+        document.getElementById('editCity').value = city;
+        document.getElementById('editState').value = state;
+        document.getElementById('editZip').value = zip;
+        document.getElementById('editPlace').value = place;
+
+        editAddressModal.classList.remove('hidden');
+    }
+
+    function closeEditModal() {
+        editAddressModal.classList.add('hidden');
+        resetFormErrors('editForm');
+        document.getElementById('editForm').reset();
+    }
+
+    // Close modals when clicking outside
+    window.addEventListener('click', (event) => {
+        if (event.target == addAddressModal) {
+            closeModal();
+        }
+        if (event.target == editAddressModal) {
+            closeEditModal();
+        }
+    });
+
+    // Form Validation Functions
+    function resetFormErrors(formId) {
+        const form = document.getElementById(formId);
+        const errorElements = form.querySelectorAll('[id$="Error"]');
+        const inputElements = form.querySelectorAll('input, select');
+
+        errorElements.forEach(element => {
+            element.textContent = '';
+            element.classList.add('hidden');
+        });
+
+        inputElements.forEach(input => {
+            input.classList.remove('border-red-500');
+        });
+    }
+
+    function showError(formId, fieldId, message) {
+        const errorElement = document.getElementById(`${fieldId}Error`);
+        const inputElement = document.getElementById(fieldId);
+
+        errorElement.textContent = message;
+        errorElement.classList.remove('hidden');
+        errorElement.style.color = '#EF4444';
+        inputElement.classList.add('border-red-500');
+    }
+
+    function validateAddressForm(formId) {
+        const form = document.getElementById(formId);
+        const prefix = formId === 'editForm' ? 'edit' : '';
+        resetFormErrors(formId);
+        let isValid = true;
+
+        // Name validation
+        const nameField = prefix ? `${prefix}Name` : 'name';
+        const name = document.getElementById(nameField).value.trim();
+        if (name.length === 0) {
+            showError(formId, nameField, 'Name is required');
+            isValid = false;
+        } else if (name.length < 3) {
+            showError(formId, nameField, 'Name must be at least 3 characters long');
+            isValid = false;
+        } else if (!/^[a-zA-Z\s]+$/.test(name)) {
+            showError(formId, nameField, 'Name should only contain letters and spaces');
+            isValid = false;
+        }
+
+        // Street validation
+        const streetField = prefix ? `${prefix}Street` : 'street';
+        const street = document.getElementById(streetField).value.trim();
+        if (street.length === 0) {
+            showError(formId, streetField, 'Street address is required');
+            isValid = false;
+        } else if (street.length < 5) {
+            showError(formId, streetField, 'Please enter a valid street address');
+            isValid = false;
+        }
+
+        // City validation
+        const cityField = prefix ? `${prefix}City` : 'city';
+        const city = document.getElementById(cityField).value.trim();
+        if (city.length === 0) {
+            showError(formId, cityField, 'City is required');
+            isValid = false;
+        } else if (!/^[a-zA-Z\s]+$/.test(city)) {
+            showError(formId, cityField, 'City should only contain letters and spaces');
+            isValid = false;
+        }
+
+        // State validation
+        const stateField = prefix ? `${prefix}State` : 'state';
+        const state = document.getElementById(stateField).value.trim();
+        if (state.length === 0) {
+            showError(formId, stateField, 'State is required');
+            isValid = false;
+        } else if (!/^[a-zA-Z\s]+$/.test(state)) {
+            showError(formId, stateField, 'State should only contain letters and spaces');
+            isValid = false;
+        }
+
+        // ZIP validation
+        const zipField = prefix ? `${prefix}Zip` : 'zip';
+        const zip = document.getElementById(zipField).value.trim();
+        if (zip.length === 0) {
+            showError(formId, zipField, 'ZIP code is required');
+            isValid = false;
+        } else if (!/^\d{6}$/.test(zip)) {
+            showError(formId, zipField, 'ZIP code must be exactly 6 digits');
+            isValid = false;
+        }
+
+        // Place validation
+        const placeField = prefix ? `${prefix}Place` : 'place';
+        const place = document.getElementById(placeField).value;
+        if (!place) {
+            showError(formId, placeField, 'Please select an address type');
+            isValid = false;
+        }
+
+        return isValid;
+    }
+
+    // Add form submission handlers
+    document.getElementById('addressForm').addEventListener('submit', function(event) {
+        if (!validateAddressForm('addressForm')) {
+            event.preventDefault();
+        }
+    });
+
+    document.getElementById('editForm').addEventListener('submit', function(event) {
+        if (!validateAddressForm('editForm')) {
+            event.preventDefault();
+        }
+    });
+
+    // Handle edit buttons in checkout page
+    document.querySelectorAll('.edit-address').forEach(button => {
+        button.addEventListener('click', function() {
+            const id = this.dataset.id;
+            const name = this.dataset.name;
+            const street = this.dataset.street;
+            const city = this.dataset.city;
+            const state = this.dataset.state;
+            const zip = this.dataset.zip;
+            const place = this.dataset.place;
+            openEditModal(id, name, street, city, state, zip, place);
+        });
+    })
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get the discounted amount
+        const amountElement = document.getElementById('discountedAmount');
+        const amountText = amountElement.textContent;
+        const amount = parseFloat(amountText.replace(/[^0-9.]/g, ''));
+
+        // Get COD elements
+        const codButton = document.getElementById('placeOrderBtn');
+        const codMessage = document.getElementById('codMessage');
+
+        // Check if amount exceeds 1000
+        if (amount > 1000) {
+            // Smooth transition for disabled state
+            codButton.disabled = true;
+            codMessage.classList.remove('hidden');
+            codButton.classList.add('cursor-not-allowed');
+
+            // Fade in the message with a slight delay
+            setTimeout(() => {
+                codMessage.classList.remove('opacity-0');
+            }, 100);
+
+            // Add a subtle shake animation to draw attention
+            codButton.classList.add('animate-pulse');
+            setTimeout(() => {
+                codButton.classList.remove('animate-pulse');
+            }, 1000);
+        }
+
+        // Add hover effect for enabled button
+        codButton.addEventListener('mouseover', function() {
+            if (!this.disabled) {
+                this.classList.add('shadow-lg');
+            }
+        });
+
+        codButton.addEventListener('mouseout', function() {
+            this.classList.remove('shadow-lg');
+        });
+    });
+
+    // Add this to your existing script
+
+</script>
+</body>
+</html>

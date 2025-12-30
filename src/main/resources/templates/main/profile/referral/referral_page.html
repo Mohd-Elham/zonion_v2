@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zonion - Profile</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        zonion: '#BC5DC6',
+                    },
+                    fontFamily: {
+                        'sans': ['Montserrat', 'sans-serif'],
+                    }
+                }
+            }
+        };
+    </script>
+</head>
+<body class="bg-gray-50 font-sans min-h-screen">
+<!-- Top Navigation Bar -->
+<nav class="bg-white shadow-sm fixed w-full top-0 z-50">
+    <div class="container mx-auto px-4 py-3">
+        <div class="flex items-center justify-between">
+            <!-- Logo Section -->
+            <a th:href="@{/}">
+                <div class="flex items-center">
+                    <img alt="Zonion" class="h-6 sm:h-8" th:src="@{/images/onion-logo.png}">
+                    <h1 class="text-lg sm:text-xl md:text-2xl font-[800] text-zonion ml-2 sm:ml-3">ZONION</h1>
+                </div>
+            </a>
+
+            <!-- Navigation Icons -->
+            <div class="relative">
+                <div class="flex items-center gap-3 sm:gap-6">
+                    <button id="profileBtn" class="text-gray-600 hover:text-zonion transition-colors duration-200 focus:outline-none">
+                        <span class="material-symbols-outlined text-sm sm:text-base" th:text="${user.username}"></span>
+                    </button>
+                </div>
+
+                <!-- Dropdown Menu -->
+                <div id="dropdownMenu" class="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-lg shadow-lg hidden">
+                    <a href="/logout" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-16 sm:mt-20">
+    <!-- Navigation Tabs -->
+    <div class="flex flex-wrap gap-2 sm:gap-4 mb-6 sm:mb-8">
+        <a href="/profile" class="px-4 sm:px-6 py-2 bg-pink-300 text-white rounded-md text-sm sm:text-base">Profile</a>
+        <a href="/profile/orders" class="px-4 sm:px-6 py-2 bg-pink-300 text-white rounded-md text-sm sm:text-base">Orders</a>
+        <a href="/profile/address" class="px-4 sm:px-6 py-2 bg-pink-300 text-white rounded-md text-sm sm:text-base">Address</a>
+        <a href="/profile/wallet" class="px-4 sm:px-6 py-2 bg-pink-300 text-white rounded-md text-sm sm:text-base">Wallet</a>
+        <a href="/profile/referrals" class="px-4 sm:px-6 py-2 bg-zonion text-white rounded-md text-sm sm:text-base">Referral Code</a>
+
+    </div>
+
+
+    <!-- Profile Form -->
+    <div class="bg-white shadow-lg rounded-2xl p-6 sm:p-8 border border-gray-100">
+        <div class="mb-6 sm:mb-8">
+            <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-2">Your Referral Code</h2>
+            <div class="h-1 w-20 bg-zonion rounded-full mb-4"></div>
+            <p class="text-gray-600 mb-6">Share this referral code with your foodie friends and you get <span class="text-zonion font-bold">₹100</span>  in your wallet for every successful referral!</p>
+        </div>
+
+        <div class="bg-gradient-to-r from-purple-100 to-pink-100 p-6 rounded-xl border border-zonion-light mb-8">
+            <div class="flex flex-col sm:flex-row items-center justify-between">
+                <div class="mb-4 sm:mb-0 text-center sm:text-left">
+                    <p class="text-sm text-gray-500 mb-1">Your unique code</p>
+                    <div class="flex items-center">
+                        <h3 class="text-2xl sm:text-3xl font-bold text-zonion tracking-wider" id="referralCode" th:text="${referralCode}">XYZ123</h3>
+                        <button onclick="copyToClipboard()" class="ml-3 p-2 rounded-full bg-white hover:bg-zonion hover:text-white transition-colors duration-200">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+                <button onclick="shareReferral()" class="px-6 py-3 bg-zonion text-white rounded-full font-medium flex items-center gap-2 hover:bg-zonion-dark transform transition hover:scale-105 duration-200 shadow-md">
+                    <i class="fas fa-share-alt"></i>
+                    <span>Share Now</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="mt-8 bg-gray-50 p-6 rounded-xl border border-gray-200">
+        <h3 class="font-semibold text-lg mb-4">Your Referral Stats</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            <div class="bg-white p-4 rounded-lg shadow-sm">
+                <p class="text-gray-500 text-sm">Total Referrals</p>
+                <p class="text-2xl font-bold text-gray-800">0</p>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-sm">
+                <p class="text-gray-500 text-sm">Total Earned</p>
+                <p class="text-2xl font-bold text-zonion">₹0</p>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 flex items-center gap-2">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Copied to clipboard!</span>
+    </div>
+</main>
+
+
+<script>
+    // Simple script to close the modal
+    document.getElementById("closeModal")?.addEventListener("click", function() {
+        document.getElementById("successModal").style.display = "none";
+    });
+</script>
+
+<script>
+    // Toggle dropdown menu
+    const profileBtn = document.getElementById('profileBtn');
+    const dropdownMenu = document.getElementById('dropdownMenu');
+
+    profileBtn.addEventListener('click', () => {
+        dropdownMenu.classList.toggle('hidden');
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!profileBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+            dropdownMenu.classList.add('hidden');
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('successModal');
+        const closeBtn = document.getElementById('closeModal');
+
+        if (modal && closeBtn) {
+            // Apply entrance animation
+            setTimeout(() => {
+                modal.querySelector('div').classList.add('scale-100');
+            }, 10);
+
+            // Close button functionality
+            closeBtn.addEventListener('click', closeModal);
+
+            // Background click to close
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) closeModal();
+            });
+
+            // Auto-dismiss after 5 seconds
+            setTimeout(closeModal, 5000);
+
+            function closeModal() {
+                modal.querySelector('div').classList.replace('scale-100', 'scale-95');
+                modal.classList.add('opacity-0');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300);
+            }
+        }
+    });
+    // Toggle dropdown menu with animation
+    const profileBtn = document.getElementById('profileBtn');
+    const dropdownMenu = document.getElementById('dropdownMenu');
+
+    profileBtn.addEventListener('click', () => {
+        dropdownMenu.classList.toggle('hidden');
+        setTimeout(() => {
+            dropdownMenu.classList.toggle('opacity-0');
+            dropdownMenu.classList.toggle('scale-95');
+        }, 10);
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!profileBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+            dropdownMenu.classList.add('opacity-0', 'scale-95');
+            setTimeout(() => {
+                dropdownMenu.classList.add('hidden');
+            }, 200);
+        }
+    });
+
+    // Copy to clipboard function
+    function copyToClipboard() {
+        const referralCode = document.getElementById('referralCode').innerText;
+        navigator.clipboard.writeText(referralCode).then(() => {
+            showToast('Referral code copied to clipboard!');
+        });
+    }
+
+    // Share function
+    function shareReferral() {
+        const referralCode = document.getElementById('referralCode').innerText;
+
+        if (navigator.share) {
+            navigator.share({
+                title: 'Join me on Zonion!',
+                text: `Use my referral code ${referralCode} to get started on Zonion and enjoy delicious meals!`,
+                url: window.location.origin
+            }).then(() => {
+                showToast('Thanks for sharing!');
+            })
+                .catch(console.error);
+        } else {
+            copyToClipboard();
+        }
+    }
+
+    // Toast notification
+    function showToast(message) {
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toastMessage');
+
+        toastMessage.innerText = message;
+        toast.classList.remove('translate-y-20', 'opacity-0');
+
+        setTimeout(() => {
+            toast.classList.add('translate-y-20', 'opacity-0');
+        }, 3000);
+    }
+</script>
+</body>
+</html>

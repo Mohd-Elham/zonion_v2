@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zonion - Profile</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        zonion: '#BC5DC6',
+                    },
+                    fontFamily: {
+                        'sans': ['Montserrat', 'sans-serif'],
+                    }
+                }
+            }
+        };
+    </script>
+</head>
+<body class="bg-gray-50 font-sans min-h-screen">
+<!-- Top Navigation Bar -->
+<nav class="bg-white shadow-sm fixed w-full top-0 z-50">
+    <div class="container mx-auto px-4 py-3">
+        <div class="flex items-center justify-between">
+            <!-- Logo Section -->
+            <div class="flex items-center">
+                <img alt="Zonion" class="h-6 sm:h-8" th:src="@{/images/onion-logo.png}">
+                <h1 class="text-lg sm:text-xl md:text-2xl font-[800] text-zonion ml-2 sm:ml-3">ZONION</h1>
+            </div>
+
+            <!-- Navigation Icons -->
+            <div class="relative">
+                <div class="flex items-center gap-3 sm:gap-6">
+                    <button id="profileBtn" class="text-gray-600 hover:text-zonion transition-colors duration-200 focus:outline-none">
+                        <span class="material-symbols-outlined text-sm sm:text-base" th:text="${user.username}"></span>
+                    </button>
+                </div>
+
+                <!-- Dropdown Menu -->
+                <div id="dropdownMenu" class="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-lg shadow-lg hidden">
+                    <a href="/logout" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-16 sm:mt-20">
+    <!-- Navigation Tabs -->
+    <div class="flex flex-wrap gap-2 sm:gap-4 mb-6 sm:mb-8">
+        <a href="#" class="px-4 sm:px-6 py-2 bg-pink-300 text-white rounded-md text-sm sm:text-base">Profile</a>
+        <a href="#" class="px-4 sm:px-6 py-2 bg-pink-300 text-white rounded-md text-sm sm:text-base">Orders</a>
+        <a href="#" class="px-4 sm:px-6 py-2 bg-zonion text-white rounded-md text-sm sm:text-base">Address</a>
+        <a href="#" class="px-4 sm:px-6 py-2 bg-pink-300 text-white rounded-md text-sm sm:text-base">Wallet</a>
+    </div>
+
+    <!-- Profile Form -->
+    <div class="bg-white shadow-lg rounded-lg p-4 sm:p-6">
+        <div class="flex justify-between items-center mb-4 sm:mb-6">
+            <h2 class="text-lg sm:text-xl font-semibold">Personal Information</h2>
+        </div>
+
+        <form th:action="@{/profile/address}" th:object="${address}" method="post" class="space-y-4 sm:space-y-6 ml-0 sm:ml-8">
+            <!-- Error Messages Container -->
+            <div th:if="${#fields.hasAnyErrors()}" class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded mb-4">
+                <p th:each="err : ${#fields.allErrors()}" th:text="${err}" class="text-sm"></p>
+            </div>
+
+            <!-- Full Name -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label for="fullName" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                    <input type="text"
+                           id="fullName"
+                           th:field="*{fullName}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-zonion focus:border-transparent"
+                           required
+                           minlength="3">
+                    <span class="text-red-500 text-xs mt-1" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></span>
+                </div>
+            </div>
+
+            <!-- Phone -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                    <input type="tel"
+                           id="phone"
+                           th:field="*{phone}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-zonion focus:border-transparent"
+                           required
+                           pattern="[6-9][0-9]{9}">
+                    <span class="text-red-500 text-xs mt-1" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></span>
+                </div>
+            </div>
+
+            <!-- Street Address -->
+            <div>
+                <label for="street" class="block text-sm font-medium text-gray-700 mb-1">Street Address</label>
+                <textarea id="street"
+                          th:field="*{street}"
+                          rows="3"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-zonion focus:border-transparent"
+                          required
+                          minlength="10"></textarea>
+                <span class="text-red-500 text-xs mt-1" th:if="${#fields.hasErrors('street')}" th:errors="*{street}"></span>
+            </div>
+
+            <!-- City and State -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label for="city" class="block text-sm font-medium text-gray-700 mb-1">City</label>
+                    <input type="text"
+                           id="city"
+                           th:field="*{city}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-zonion focus:border-transparent"
+                           required>
+                    <span class="text-red-500 text-xs mt-1" th:if="${#fields.hasErrors('city')}" th:errors="*{city}"></span>
+                </div>
+                <div>
+                    <label for="state" class="block text-sm font-medium text-gray-700 mb-1">State</label>
+                    <select id="state"
+                            th:field="*{state}"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-zonion focus:border-transparent"
+                            required>
+                        <option value="">Select State</option>
+                        <option th:each="stateOption : ${states}"
+                                th:value="${stateOption}"
+                                th:text="${stateOption}">State Name</option>
+                    </select>
+                    <span class="text-red-500 text-xs mt-1" th:if="${#fields.hasErrors('state')}" th:errors="*{state}"></span>
+                </div>
+            </div>
+
+            <!-- Pincode -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label for="pincode" class="block text-sm font-medium text-gray-700 mb-1">Postal Code</label>
+                    <input type="text"
+                           id="pincode"
+                           th:field="*{pincode}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-zonion focus:border-transparent"
+                           required
+                           pattern="[0-9]{6}"
+                           maxlength="6">
+                    <span class="text-red-500 text-xs mt-1" th:if="${#fields.hasErrors('pincode')}" th:errors="*{pincode}"></span>
+                </div>
+            </div>
+
+            <!-- Address Type -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Address Type</label>
+                    <div class="flex gap-4">
+                        <label class="inline-flex items-center">
+                            <input type="radio"
+                                   th:field="*{addressType}"
+                                   value="HOME"
+                                   class="form-radio text-zonion"
+                                   required>
+                            <span class="ml-2">Home</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="radio"
+                                   th:field="*{addressType}"
+                                   value="WORK"
+                                   class="form-radio text-zonion">
+                            <span class="ml-2">Work</span>
+                        </label>
+                    </div>
+                    <span class="text-red-500 text-xs mt-1" th:if="${#fields.hasErrors('addressType')}" th:errors="*{addressType}"></span>
+                </div>
+            </div>
+
+            <button type="submit" class="w-full sm:w-auto bg-zonion text-white px-6 py-2 rounded-md text-sm sm:text-base hover:bg-opacity-90 transition-colors">
+                Save Changes
+            </button>
+        </form>
+    </div>
+</main>
+
+<script>
+    // Toggle dropdown menu
+    const profileBtn = document.getElementById('profileBtn');
+    const dropdownMenu = document.getElementById('dropdownMenu');
+
+    profileBtn.addEventListener('click', () => {
+        dropdownMenu.classList.toggle('hidden');
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!profileBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+            dropdownMenu.classList.add('hidden');
+        }
+    });
+</script>
+</body>
+</html>

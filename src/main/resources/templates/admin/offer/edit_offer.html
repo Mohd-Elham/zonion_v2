@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+          rel="stylesheet">
+    <!-- Cropper and Tailwind CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Edit Offer</title>
+</head>
+<body>
+<!-- Header Fragment -->
+<div th:fragment="header">
+    <nav class="bg-white shadow-sm p-4">
+        <div class="container mx-auto">
+            <div class="flex items-center justify-between">
+                <a href="/">
+                    <div class="flex items-center">
+                        <img th:src="@{/images/onion-logo.png}" alt="Zonion" class="h-8">
+                        <h1 class="text-2xl font-[800] text-zonion ml-3 mt-1.5">ZONION</h1>
+                    </div>
+                </a>
+                <div class="flex items-center gap-4">
+                    <button class="p-2 hover:bg-gray-100 rounded-full">
+                        <i data-lucide="bell" class="w-5 h-5 text-gray-600"></i>
+                    </button>
+                    <button class="p-2 hover:bg-gray-100 rounded-full">
+                        <i data-lucide="user" class="w-5 h-5 text-gray-600"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+</div>
+
+<div class="flex">
+    <!-- Sidebar -->
+    <div class="flex-col w-64 h-screen border-r bg-white">
+        <div class="text-xl text-zonion font-[600] p-8 border-b">Admin Dashboard</div>
+        <!-- Navigation Items -->
+        <nav class="mt-4">
+            <a href="/admin_dashboard" class="flex items-center px-8 py-3 text-gray-700 hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Users</span>
+            </a>
+            <a href="/admin_dashboard/products" class="flex items-center px-8 py-3 hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Products</span>
+            </a>
+            <a href="/admin_dashboard/category" class="flex items-center px-8 py-3 hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Categories</span>
+            </a>
+            <a href="/admin/orders" class="flex items-center px-8 py-3 hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Orders</span>
+            </a>
+            <a href="/admin_dashboard/inventory" class="flex items-center px-8 py-3 hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Inventory</span>
+            </a>
+            <a href="/admin_dashboard/coupons" class="flex items-center px-8 py-3 hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Coupons</span>
+            </a>
+            <a href="/admin_dashboard/offers" class="flex items-center px-8 py-3 bg-purple-50 text-zonion hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Offers</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="w-full">
+        <!-- Products Form -->
+        <div class="max-w-2xl mx-auto p-8">
+            <div class="bg-white rounded-lg shadow-sm">
+                <div class="p-6 border-b border-gray-100">
+                    <h4 class="text-lg font-semibold text-gray-800">Edit Offer</h4>
+                </div>
+                <!-- Update form tag to include validation -->
+                <form class="p-6 space-y-6" th:action="@{'/admin_dashboard/offers/update/' + ${offer.id}}"
+                      method="post" id="offerForm" onsubmit="return validateForm()">
+                    <input type="hidden" name="id" th:value="${offer.id}">
+
+                    <!-- Offer Name -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Offer Name</label>
+                        <input type="text"
+                               class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-zonion"
+                               name="offerName"
+                               id="offerName"
+                               th:value="${offer.offerName}"
+                               placeholder="Enter offer name">
+                        <p th:if="${param.error}" class="text-red-500 text-sm" th:text="${param.error}"></p>
+                        <p id="offerNameError" class="text-red-500 text-sm mt-1 hidden">Offer name cannot be empty</p>
+                    </div>
+
+                    <!-- Description -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Offer description</label>
+                        <textarea rows="4"
+                                  class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-zonion"
+                                  name="offerDescription"
+                                  id="offerDescription"
+                                  placeholder="Enter description"
+                                  th:text="${offer.offerDescription}"></textarea>
+                        <p id="descriptionError" class="text-red-500 text-sm mt-1 hidden">Please provide a valid description</p>
+                    </div>
+
+                    <!-- Offer Type -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Offer Type</label>
+                        <div class="flex gap-4">
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="offerType" value="PRODUCT_OFFER" class="form-radio"
+                                       th:checked="${offer.offerType.toString() == 'PRODUCT_OFFER'}">
+                                <span class="ml-2">Product Offer</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="offerType" value="CATEGORY_OFFER" class="form-radio"
+                                       th:checked="${offer.offerType.toString() == 'CATEGORY_OFFER'}">
+                                <span class="ml-2">Category Offer</span>
+                            </label>
+                        </div>
+                        <p id="offerTypeError" class="text-red-500 text-sm mt-1 hidden">Please select an offer type</p>
+                    </div>
+
+                    <!-- Product Selection -->
+                    <div id="productSelection" th:class="${offer.offerType.toString() == 'PRODUCT_OFFER'}">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Select Products</label>
+                        <select name="products" id="products" class="w-full px-4 py-2 border rounded-lg">
+                            <option th:each="product : ${products}"
+                                    th:value="${product.id}"
+                                    th:text="${product.product_name}"
+                                    th:selected="${offer.products.contains(product)}"></option>
+                        </select>
+                        <p id="productsError" class="text-red-500 text-sm mt-1 hidden">Please select at least one product</p>
+                    </div>
+
+                    <!-- Category Selection -->
+                    <div id="categorySelection" th:class="${offer.offerType.toString() == 'CATEGORY_OFFER'}">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Select Categories</label>
+                        <select name="categories" id="categories" class="w-full px-4 py-2 border rounded-lg">
+                            <option th:each="category : ${categories}"
+                                    th:value="${category.id}"
+                                    th:text="${category.category_name}"
+                                    th:selected="${offer.categories.contains(category)}"></option>
+                        </select>
+                        <p id="categoriesError" class="text-red-500 text-sm mt-1 hidden">Please select at least one category</p>
+                    </div>
+
+                    <!-- Discount Type -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Discount Type</label>
+                        <div class="flex gap-4">
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="discountType" value="FLAT" class="form-radio"
+                                       th:checked="${offer.discountType.toString() == 'FLAT'}">
+                                <span class="ml-2">Flat</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="discountType" value="PERCENTAGE" class="form-radio"
+                                       th:checked="${offer.discountType.toString() == 'PERCENTAGE'}">
+                                <span class="ml-2">Percentage</span>
+                            </label>
+                        </div>
+                        <p id="discountTypeError" class="text-red-500 text-sm mt-1 hidden">Please select a discount type</p>
+                    </div>
+
+                    <!-- Discount Value -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Discount Value</label>
+                        <input type="number" step="0.01" min="0"
+                               name="discountValue"
+                               id="discountValue"
+                               class="w-full px-4 py-2 border rounded-lg"
+                               th:value="${offer.discountValue}">
+                        <p id="discountValueError" class="text-red-500 text-sm mt-1 hidden">Please enter a valid discount value</p>
+                    </div>
+
+                    <!-- Min/Max Discount Amounts -->
+                    <div class="flex gap-4">
+                        <div class="w-1/2">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Minimum Discount</label>
+                            <input type="number" step="0.01" min="0"
+                                   name="minimumDiscountAmount"
+                                   id="minimumDiscountAmount"
+                                   class="w-full px-4 py-2 border rounded-lg"
+                                   th:value="${offer.minimumDiscountAmount}">
+                            <p id="minDiscountError" class="text-red-500 text-sm mt-1 hidden">Minimum discount cannot be negative</p>
+                        </div>
+                        <div class="w-1/2">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Maximum Discount</label>
+                            <input type="number" step="0.01" min="0"
+                                   name="maximumDiscountAmount"
+                                   id="maximumDiscountAmount"
+                                   class="w-full px-4 py-2 border rounded-lg"
+                                   th:value="${offer.maximumDiscountAmount}">
+                            <p id="maxDiscountError" class="text-red-500 text-sm mt-1 hidden">Maximum discount must be greater than minimum</p>
+                        </div>
+                    </div>
+
+                    <!-- Date Range -->
+                    <div class="flex gap-4">
+                        <div class="w-1/2">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+                            <input type="datetime-local" name="startDate" id="startDate"
+                                   class="w-full px-4 py-2 border rounded-lg"
+                                   th:value="${#temporals.format(offer.startDate, 'yyyy-MM-dd''T''HH:mm')}">
+                            <p id="startDateError" class="text-red-500 text-sm mt-1 hidden">Please select a valid start date</p>
+                        </div>
+                        <div class="w-1/2">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">End Date</label>
+                            <input type="datetime-local" name="endDate" id="endDate"
+                                   class="w-full px-4 py-2 border rounded-lg"
+                                   th:value="${#temporals.format(offer.endDate, 'yyyy-MM-dd''T''HH:mm')}">
+                            <p id="endDateError" class="text-red-500 text-sm mt-1 hidden">End date must be after start date</p>
+                        </div>
+                    </div>
+
+                    <!-- Status -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Offer Status</label>
+                        <div class="flex gap-4">
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="active" value="true" class="form-radio"
+                                       th:checked="${offer.active}">
+                                <span class="ml-2">Active</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="active" value="false" class="form-radio"
+                                       th:checked="${!offer.active}">
+                                <span class="ml-2">Inactive</span>
+                            </label>
+                        </div>
+                        <p id="statusError" class="text-red-500 text-sm mt-1 hidden">Please select an offer status</p>
+                    </div>
+
+                    <!-- Form Buttons -->
+                    <div class="flex justify-end gap-4">
+                        <a href="/admin_dashboard/offers" class="px-6 py-2 border rounded-lg hover:bg-gray-50">Cancel</a>
+                        <button type="submit" class="px-6 py-2 bg-zonion text-white rounded-lg hover:bg-purple-700">Update Offer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for Tailwind Config and Validation -->
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    zonion: '#BC5DC6',
+                },
+                fontFamily: {
+                    'sans': ['Montserrat', 'sans-serif'],
+                }
+            }
+        }
+    };
+
+    // Toggle Product/Category visibility
+    document.addEventListener('DOMContentLoaded', function() {
+        const offerTypeRadios = document.querySelectorAll('input[name="offerType"]');
+        const productDiv = document.getElementById('productSelection');
+        const categoryDiv = document.getElementById('categorySelection');
+
+        function toggleSelections() {
+            const offerType = document.querySelector('input[name="offerType"]:checked')?.value;
+            if (offerType) {
+                productDiv.classList.toggle('hidden', offerType !== 'PRODUCT_OFFER');
+                categoryDiv.classList.toggle('hidden', offerType !== 'CATEGORY_OFFER');
+            } else {
+                // Default state if no offerType is selected
+                productDiv.classList.add('hidden');
+                categoryDiv.classList.add('hidden');
+            }
+        }
+
+        // Initialize on page load
+        toggleSelections();
+
+        offerTypeRadios.forEach(radio => radio.addEventListener('change', toggleSelections));
+
+        // Add input event listeners for real-time validation
+        document.getElementById('offerName').addEventListener('input', function() {
+            const errorElement = document.getElementById('offerNameError');
+            if (this.value.trim() === '') {
+                errorElement.classList.remove('hidden');
+            } else {
+                errorElement.classList.add('hidden');
+            }
+        });
+
+        document.getElementById('offerDescription').addEventListener('input', function() {
+            const errorElement = document.getElementById('descriptionError');
+            if (this.value.trim() === '') {
+                errorElement.classList.remove('hidden');
+            } else {
+                errorElement.classList.add('hidden');
+            }
+        });
+
+        // Enhanced validation for discount value based on discount type
+        function validateDiscountValue() {
+            const discountType = document.querySelector('input[name="discountType"]:checked')?.value;
+            const discountValue = document.getElementById('discountValue');
+            const errorElement = document.getElementById('discountValueError');
+
+            // Value cannot be empty or negative
+            if (!discountValue.value || parseFloat(discountValue.value) < 0) {
+                errorElement.textContent = "Please enter a valid positive discount value";
+                errorElement.classList.remove('hidden');
+                return false;
+            }
+            // For FLAT discount type, max is 2000
+            else if (discountType === 'FLAT' && parseFloat(discountValue.value) > 2000) {
+                errorElement.textContent = "Flat discount cannot exceed ₹2000";
+                errorElement.classList.remove('hidden');
+                return false;
+            }
+            // For PERCENTAGE discount type, max is 99%
+            else if (discountType === 'PERCENTAGE' && parseFloat(discountValue.value) > 99) {
+                errorElement.textContent = "Percentage discount cannot exceed 99%";
+                errorElement.classList.remove('hidden');
+                return false;
+            }
+            else {
+                errorElement.classList.add('hidden');
+                return true;
+            }
+        }
+
+        // Validate discount value on input
+        document.getElementById('discountValue').addEventListener('input', validateDiscountValue);
+
+        // Validate discount value when discount type changes
+        document.querySelectorAll('input[name="discountType"]').forEach(radio => {
+            radio.addEventListener('change', validateDiscountValue);
+        });
+
+        // Validate max discount amount (₹2000 limit + relationship with min)
+        function validateMaxDiscount() {
+            const maxDiscount = document.getElementById('maximumDiscountAmount');
+            const errorElement = document.getElementById('maxDiscountError');
+
+            // Check if max discount exceeds ₹2000
+            if (maxDiscount.value && parseFloat(maxDiscount.value) > 2000) {
+                errorElement.textContent = "Maximum discount cannot exceed ₹2000";
+                errorElement.classList.remove('hidden');
+                return false;
+            }
+            else {
+                // Check relationship with minimum discount
+                return validateMinMaxDiscounts();
+            }
+        }
+
+        // Validate min/max relationship
+        function validateMinMaxDiscounts() {
+            const minDiscount = document.getElementById('minimumDiscountAmount');
+            const maxDiscount = document.getElementById('maximumDiscountAmount');
+            const errorElement = document.getElementById('maxDiscountError');
+
+            if (minDiscount.value && maxDiscount.value &&
+                parseFloat(maxDiscount.value) < parseFloat(minDiscount.value)) {
+                errorElement.textContent = "Maximum discount must be greater than minimum";
+                errorElement.classList.remove('hidden');
+                return false;
+            } else {
+                errorElement.classList.add('hidden');
+                return true;
+            }
+        }
+
+        document.getElementById('minimumDiscountAmount').addEventListener('input', validateMinMaxDiscounts);
+        document.getElementById('maximumDiscountAmount').addEventListener('input', validateMaxDiscount);
+
+        // Validate date relationship
+        function validateDates() {
+            const startDate = new Date(document.getElementById('startDate').value);
+            const endDate = new Date(document.getElementById('endDate').value);
+            const errorElement = document.getElementById('endDateError');
+
+            if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime()) && endDate <= startDate) {
+                errorElement.classList.remove('hidden');
+                return false;
+            } else {
+                errorElement.classList.add('hidden');
+                return true;
+            }
+        }
+
+        document.getElementById('startDate').addEventListener('input', validateDates);
+        document.getElementById('endDate').addEventListener('input', validateDates);
+    });
+
+    // Complete Form Validation on Submit
+    function validateForm() {
+        let isValid = true;
+
+        // Clear all error messages first
+        document.querySelectorAll('[id$="Error"]').forEach(el => {
+            el.classList.add('hidden');
+        });
+
+        // Offer Name validation
+        const offerName = document.getElementById('offerName');
+        if (!offerName.value.trim()) {
+            document.getElementById('offerNameError').classList.remove('hidden');
+            offerName.focus();
+            isValid = false;
+        }
+
+        // Description validation
+        const description = document.getElementById('offerDescription');
+        if (!description.value.trim()) {
+            document.getElementById('descriptionError').classList.remove('hidden');
+            if (isValid) description.focus();
+            isValid = false;
+        }
+
+        // Offer Type validation
+        const offerType = document.querySelector('input[name="offerType"]:checked');
+        if (!offerType) {
+            document.getElementById('offerTypeError').classList.remove('hidden');
+            isValid = false;
+        } else {
+            // Product/Category validation based on type
+            if (offerType.value === 'PRODUCT_OFFER') {
+                const products = document.getElementById('products');
+                if (products.selectedOptions.length === 0) {
+                    document.getElementById('productsError').classList.remove('hidden');
+                    if (isValid) products.focus();
+                    isValid = false;
+                }
+            } else if (offerType.value === 'CATEGORY_OFFER') {
+                const categories = document.getElementById('categories');
+                if (categories.selectedOptions.length === 0) {
+                    document.getElementById('categoriesError').classList.remove('hidden');
+                    if (isValid) categories.focus();
+                    isValid = false;
+                }
+            }
+        }
+
+        // Discount Type validation
+        const discountType = document.querySelector('input[name="discountType"]:checked');
+        if (!discountType) {
+            document.getElementById('discountTypeError').classList.remove('hidden');
+            isValid = false;
+        }
+
+        // Discount Value validation with custom rules
+        const discountValue = document.getElementById('discountValue');
+        const discountValueError = document.getElementById('discountValueError');
+
+        if (!discountValue.value || parseFloat(discountValue.value) < 0) {
+            discountValueError.textContent = "Please enter a valid positive discount value";
+            discountValueError.classList.remove('hidden');
+            if (isValid) discountValue.focus();
+            isValid = false;
+        }
+        else if (discountType && discountType.value === 'FLAT' && parseFloat(discountValue.value) > 2000) {
+            discountValueError.textContent = "Flat discount cannot exceed ₹2000";
+            discountValueError.classList.remove('hidden');
+            if (isValid) discountValue.focus();
+            isValid = false;
+        }
+        else if (discountType && discountType.value === 'PERCENTAGE' && parseFloat(discountValue.value) > 99) {
+            discountValueError.textContent = "Percentage discount cannot exceed 99%";
+            discountValueError.classList.remove('hidden');
+            if (isValid) discountValue.focus();
+            isValid = false;
+        }
+
+        // Min/Max Discount validation
+        const minDiscount = document.getElementById('minimumDiscountAmount');
+        const maxDiscount = document.getElementById('maximumDiscountAmount');
+        const maxDiscountError = document.getElementById('maxDiscountError');
+
+        if (minDiscount.value && parseFloat(minDiscount.value) < 0) {
+            document.getElementById('minDiscountError').classList.remove('hidden');
+            if (isValid) minDiscount.focus();
+            isValid = false;
+        }
+
+        // Check maximum discount limit (₹2000)
+        if (maxDiscount.value && parseFloat(maxDiscount.value) > 2000) {
+            maxDiscountError.textContent = "Maximum discount cannot exceed ₹2000";
+            maxDiscountError.classList.remove('hidden');
+            if (isValid) maxDiscount.focus();
+            isValid = false;
+        }
+        // Check min/max relationship
+        else if (minDiscount.value && maxDiscount.value &&
+            parseFloat(maxDiscount.value) < parseFloat(minDiscount.value)) {
+            maxDiscountError.textContent = "Maximum discount must be greater than minimum";
+            maxDiscountError.classList.remove('hidden');
+            if (isValid) maxDiscount.focus();
+            isValid = false;
+        }
+
+        // Date validation
+        const startDate = new Date(document.getElementById('startDate').value);
+        const endDate = new Date(document.getElementById('endDate').value);
+
+        if (isNaN(startDate.getTime())) {
+            document.getElementById('startDateError').classList.remove('hidden');
+            if (isValid) document.getElementById('startDate').focus();
+            isValid = false;
+        }
+
+        if (isNaN(endDate.getTime())) {
+            document.getElementById('endDateError').classList.remove('hidden');
+            if (isValid) document.getElementById('endDate').focus();
+            isValid = false;
+        } else if (endDate <= startDate) {
+            document.getElementById('endDateError').classList.remove('hidden');
+            if (isValid) document.getElementById('endDate').focus();
+            isValid = false;
+        }
+
+        // Status validation
+        const status = document.querySelector('input[name="active"]:checked');
+        if (!status) {
+            document.getElementById('statusError').classList.remove('hidden');
+            isValid = false;
+        }
+
+        return isValid;
+    }
+</script>
+</body>
+</html>

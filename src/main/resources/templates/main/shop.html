@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+    <link rel="icon" type="image/x-icon" th:href="@{/images/onion-logo.png}">
+
+
+    <title>Zonion - Shop</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,200,0,0&icon_names=person,shopping_cart" />
+    <script src="https://cdn.tailwindcss.com"></script>
+
+</head>
+<body class="font-sans bg-gray-50 min-h-screen">
+<nav class="bg-white shadow-sm fixed w-full top-0 z-50">
+    <div class="container mx-auto px-4 py-3">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center">
+                <img alt="Zonion" class="h-6 sm:h-8" th:src="@{/images/onion-logo.png}">
+                <h1 class="text-xl sm:text-2xl font-[800] text-zonion ml-2 sm:ml-3">ZONION</h1>
+            </div>
+
+            <div class="relative">
+                <div class="flex items-center gap-3 sm:gap-6">
+                    <a th:href="@{cart}" class="text-gray-600 hover:text-zonion transition-colors duration-200 focus:outline-none">
+                        <span class="material-symbols-outlined">shopping_cart</span>
+                    </a>
+                    <button id="profileBtn" class="text-gray-600 hover:text-zonion transition-colors duration-200 focus:outline-none">
+                        <span class="material-symbols-outlined">person</span>
+                    </button>
+
+                </div>
+
+                <div id="dropdownMenu" class="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-lg shadow-lg hidden">
+                    <a href="/logout" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Logout</a>
+                    <a href="/profile" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">profile</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</nav>
+
+<div class="pt-8 sm:pt-12"> <div class="relative min-h-[200px] sm:min-h-[300px] w-full">
+    <div class="absolute inset-0 bg-cover bg-center"
+         style="background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),url('/images/hero-bg.jpg');">
+    </div>
+    <div class="relative z-10 flex flex-col items-center justify-center h-full px-4 py-10 sm:py-16">
+        <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4">
+            Explore Our Shop
+        </h1>
+        <p class="text-white text-lg sm:text-xl mb-6">Discover a wide variety of delicious products.</p>
+        <form th:action="@{/search}" method="get" class="w-full max-w-2xl mx-auto">
+            <div class="flex flex-col sm:flex-row gap-3">
+                <div class="relative flex-grow">
+                    <input type="text" name="query" th:value="${param.query}"
+                           placeholder="Search products in shop"
+                           class="w-full px-4 py-3 rounded-lg border-2 border-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-lg" />
+                </div>
+                <button type="submit"
+                        class="px-6 py-3 bg-zonion text-white rounded-lg hover:bg-purple-700 transition duration-200 shadow-lg">
+                    Search
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+</div>
+
+<section class="py-16 sm:py-24">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row gap-8">
+
+        <!-- Sidebar -->
+        <aside class="lg:w-1/4 bg-white p-5 rounded-xl shadow-sm">
+            <h3 class="text-lg font-semibold mb-6 text-gray-800 border-b pb-3">Categories</h3>
+            <ul class="space-y-3">
+                <!-- All Categories -->
+                <li>
+                    <a th:href="@{/shop}"
+                       class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                        <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center mr-4 flex-shrink-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-zonion" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                            </svg>
+                        </div>
+                        <span class="font-medium text-zonion">All Categories</span>
+                    </a>
+                </li>
+
+                <!-- Dynamic Categories -->
+                <li th:each="category : ${categories}">
+                    <a th:href="@{/category/{id}(id=${category.id})}"
+                       class="flex items-center px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+                       >
+
+                        <!-- Image Container -->
+                        <div class="w-12 h-12 rounded-full overflow-hidden mr-4 flex-shrink-0">
+                            <img th:src="${category.image_path}"
+                                 th:onerror="'this.src=\'/images/category-placeholder.jpg\';'"
+                                 alt="Category"
+                                 class="w-full h-full object-cover block"/>
+                        </div>
+
+                        <!-- Text Container -->
+                        <span th:text="${category.category_name}"
+                              class="text-gray-600"
+                              >
+                </span>
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <div class="lg:w-3/4">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">Shop All Products</h2>
+                <div class="inline-block relative w-64">
+                    <select id="productSort" name="sortOrder"
+                            th:data-category-id="${currentCategory != null ? currentCategory.id : ''}"
+                            class="block appearance-none w-full bg-white border border-gray-300 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline">
+                        <option value="default">Sort By Featured</option>
+                        <option value="price_asc" th:selected="${sortOrder == 'price_asc'}">Price: Low to High</option>
+                        <option value="price_desc" th:selected="${sortOrder == 'price_desc'}">Price: High to Low</option>
+                        <option value="name_asc" th:selected="${sortOrder == 'name_asc'}">Name: aA to zZ</option>
+                        <option value="name_desc" th:selected="${sortOrder == 'name_desc'}">Name: zZ to aA</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                <!-- Within the product loop in shop.html -->
+                <div th:each="product : ${products}"
+                     class="bg-white rounded-xl shadow-md hover:shadow-xl transition duration-300 transform hover:-translate-y-1">
+
+                    <th:block th:if="${product.stockQuantityInt > 0}">
+                        <a th:href="@{/product/{id}(id=${product.id})}" class="hover:text-zonion">
+                    </th:block>
+
+                    <div class="aspect-video w-full overflow-hidden rounded-t-xl relative">
+                        <div th:if="${product.stockQuantityInt <= 0}"
+                             class="absolute top-2 right-2 bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm">
+                            Out of Stock
+                        </div>
+                        <div th:if="${product.stockQuantityInt > 0 and product.stockQuantityInt < 5}"
+                             class="absolute top-2 right-2 bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm">
+                            Low Stock
+                        </div>
+                        <img th:src="${product.image_1}"
+                             th:alt="${product.product_name}"
+                             class="w-full h-full object-cover"
+                             th:classappend="${product.stockQuantityInt <= 0} ? 'grayscale-image' : ''">
+                    </div>
+                    <div class="p-4 sm:p-6">
+                        <h3 class="text-lg sm:text-xl font-semibold mb-3" th:text="${product.product_name}">
+                            Product Name
+                        </h3>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div th:if="${discountedPrices != null && discountedPrices.containsKey(product.id)}">
+                                <span class="line-through text-gray-500 text-sm">
+                                    ₹[[${#numbers.formatDecimal(product.price, 1, 2)}]]
+                                </span>
+                                    <p class="text-zonion font-semibold text-lg">
+                                        ₹[[${#numbers.formatDecimal(discountedPrices.get(product.id), 1, 2)}]]
+                                        <span class="bg-teal-400 text-white px-2 py-1 rounded text-xs ml-2" th:text="${discountTexts.get(product.id)}"></span>
+                                    </p>
+                                </div>
+                                <div th:unless="${discountedPrices != null && discountedPrices.containsKey(product.id)}">
+                                    <p class="text-zonion font-semibold text-lg">
+                                        ₹[[${#numbers.formatDecimal(product.price, 1, 2)}]]
+                                    </p>
+                                </div>
+                                <p th:if="${product.stockQuantityInt > 0}"
+                                   class="text-sm text-gray-500">
+                                    Stock: <span th:text="${product.stock_quantity}"></span>
+                                </p>
+                            </div>
+                            <button th:disabled="${product.stockQuantityInt <= 0}"
+                                    class="bg-zonion text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+
+                    <th:block th:if="${product.stockQuantityInt > 0}">
+                        </a>
+                    </th:block>
+
+                </div>
+            </div>
+            <!-- Add after the product grid -->
+            <div class="flex justify-center mt-8 pb-8">
+                <div class="flex gap-2">
+                    <a th:each="pageNumber : ${#numbers.sequence(1, totalPages)}"
+                       th:href="@{/shop(sortOrder=${sortOrder}, page=${pageNumber})}"
+                       th:classappend="${pageNumber == currentPage}
+                      ? 'bg-zonion text-white'
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'"
+                       class="px-4 py-2 rounded-lg transition-colors">
+                        [[${pageNumber}]]
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div th:insert="fragments :: footer"></div>
+
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    zonion: '#BC5DC6',
+                },
+                fontFamily: {
+                    'sans': ['Montserrat', 'sans-serif'],
+                },
+                fontWeight: {
+                    'thin': '100',
+                    'extralight': '200',
+                    'light': '300',
+                    'normal': '400',
+                    'medium': '500',
+                    'semibold': '600',
+                    'bold': '700',
+                    'extrabold': '800',
+                    'black': '900',
+                },
+                fontSize: {
+                    'xs': ['0.75rem', { lineHeight: '1rem' }],
+                    'sm': ['0.875rem', { lineHeight: '1.25rem' }],
+                    'base': ['1rem', { lineHeight: '1.5rem' }],
+                    'lg': ['1.125rem', { lineHeight: '1.75rem' }],
+                    'xl': ['1.25rem', { lineHeight: '1.75rem' }],
+                    '2xl': ['1.5rem', { lineHeight: '2rem' }],
+                    '3xl': ['1.875rem', { lineHeight: '2.25rem' }],
+                    '4xl': ['2.25rem', { lineHeight: '2.5rem' }],
+                    '5xl': ['3rem', { lineHeight: '1' }],
+                    '6xl': ['3.75rem', { lineHeight: '1' }],
+                    '7xl': ['4.5rem', { lineHeight: '1' }],
+                    '8xl': ['6rem', { lineHeight: '1' }],
+                    '9xl': ['8rem', { lineHeight: '1' }],
+                },
+            },
+        },
+    };
+
+    document.getElementById("profileBtn").addEventListener("click", function () {
+        let dropdown = document.getElementById("dropdownMenu");
+        dropdown.classList.toggle("hidden");
+    });
+
+    document.addEventListener("click", function (event) {
+        let dropdown = document.getElementById("dropdownMenu");
+        let profileBtn = document.getElementById("profileBtn");
+
+        if (!profileBtn.contains(event.target) && !dropdown.contains(event.target)) {
+            dropdown.classList.add("hidden");
+        }
+    });
+
+    document.getElementById('productSort').addEventListener('change', function() {
+        const sortOrder = this.value;
+        const categoryId = this.dataset.categoryId;
+
+        // Use correct URL based on whether we're in a category page or shop page
+        let baseUrl = '/shop';
+        if (categoryId && categoryId.trim() !== '') {
+            baseUrl = `/category/${encodeURIComponent(categoryId)}`;
+        }
+
+        window.location.href = `${baseUrl}?sortOrder=${encodeURIComponent(sortOrder)}`;
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zonion - My Addresses</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+          rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        zonion: '#BC5DC6',
+                    },
+                    fontFamily: {
+                        'sans': ['Montserrat', 'sans-serif'],
+                    }
+                }
+            }
+        };
+    </script>
+</head>
+<body class="bg-gray-50 font-sans min-h-screen">
+
+<nav class="bg-white shadow-sm fixed w-full top-0 z-50">
+    <div class="container mx-auto px-4 py-3">
+        <div class="flex items-center justify-between">
+                <a th:href="@{/}">
+            <div class="flex items-center">
+                    <img alt="Zonion" class="h-6 sm:h-8" th:src="@{/images/onion-logo.png}">
+                    <h1 class="text-lg sm:text-xl md:text-2xl font-[800] text-zonion ml-2 sm:ml-3">ZONION</h1>
+            </div>
+                </a>
+
+            <div class="relative">
+                <div class="flex items-center gap-3 sm:gap-6">
+                    <button id="profileBtn" class="text-gray-600 hover:text-zonion transition-colors duration-200">
+                        <span class="text-sm sm:text-base" th:text="${user}"></span>
+                    </button>
+                </div>
+                <div id="dropdownMenu"
+                     class="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-lg shadow-lg hidden">
+                    <form th:action="@{/logout}" method="post">
+                        <button type="submit" class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">
+                            Logout
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-16 sm:mt-20">
+    <div class="flex flex-wrap gap-2 sm:gap-4 mb-6 sm:mb-8">
+        <a th:href="@{/profile}" class="px-4 sm:px-6 py-2 bg-pink-300 text-white rounded-md text-sm sm:text-base">Profile</a>
+        <a th:href="@{/profile/orders}"
+           class="px-4 sm:px-6 py-2 bg-pink-300 text-white rounded-md text-sm sm:text-base">Orders</a>
+        <a th:href="@{/profile/address}" class="px-4 sm:px-6 py-2 bg-zonion text-white rounded-md text-sm sm:text-base">Address</a>
+        <a th:href="@{/profile/wallet}"
+           class="px-4 sm:px-6 py-2 bg-pink-300 text-white rounded-md text-sm sm:text-base">Wallet</a>
+        <a href="/profile/referrals" class="px-4 sm:px-6 py-2 bg-pink-300 text-white rounded-md text-sm sm:text-base">Referral Code</a>
+    </div>
+
+    <div class="bg-white shadow-lg rounded-lg p-4 sm:p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-lg sm:text-xl font-semibold">My Addresses</h2>
+            <button id="addAddressButton"
+                    class="bg-zonion text-white px-4 sm:px-6 py-2 rounded-md text-sm sm:text-base hover:bg-opacity-90 transition-colors inline-flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
+                          d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 01-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                          clip-rule="evenodd"/>
+                </svg>
+                Add New Address
+            </button>
+        </div>
+
+        <div th:if="${#lists.isEmpty(addresses)}" class="text-center py-8">
+            <div class="mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none"
+                     viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                </svg>
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">No addresses found</h3>
+            <p class="text-gray-500 mb-4">Add your first delivery address to get started</p>
+            <button id="addAddressButtonEmpty" class="inline-flex items-center text-zonion hover:text-opacity-80">
+                Add an addressXXX
+                <svg class="ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
+                          d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                          clip-rule="evenodd"/>
+                </svg>
+            </button>
+        </div>
+
+        <div th:unless="${#lists.isEmpty(addresses)}" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div th:each="address : ${addresses}"
+                 class="border rounded-lg p-4 relative hover:shadow-md transition-shadow">
+                <span th:text="${address.place}"
+                      class="absolute top-4 right-4 px-2 py-1 text-xs rounded-full">
+                </span>
+
+                <div class="mb-4">
+                    <h3 class="font-semibold text-lg mb-2" th:text="${address.name}"></h3>
+                    <p class="text-gray-600 mb-1" th:text="${address.street}"></p>
+                    <p class="text-gray-600">
+                        <span th:text="${address.city}"></span>,
+                        <span th:text="${address.state}"></span> -
+                        <span th:text="${address.zip}"></span>
+                    </p>
+                </div>
+
+                <div class="flex gap-3 mt-4">
+
+                    <button th:data-id="${address.id}"
+                            th:data-name="${address.name}"
+                            th:data-street="${address.street}"
+                            th:data-city="${address.city}"
+                            th:data-state="${address.state}"
+                            th:data-zip="${address.zip}"
+                            th:data-place="${address.place}"
+                            class="edit-address text-blue-600 hover:text-blue-800 text-sm font-medium">
+                        Edit
+                    </button>
+                    <form th:action="@{/profile/address/delete}" method="post">
+                        <input type="hidden" name="id" th:value="${address.id}">
+                        <button
+                               type="submit" class="delete-address text-red-600 hover:text-red-800 text-sm font-medium">
+                            Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div id="addAddressModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
+    <div class="relative top-20 mx-auto w-64 sm:w-1/2 p-3 md:p-5 border shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <h3 class="text-sm md:text-lg leading-6 font-medium text-gray-900 mb-4">Add New Address</h3>
+
+            <form id="addressForm" th:action="@{/profile/address/add}" method="post" class="space-y-4">
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700">Receivers Name</label>
+                    <input type="text" id="name" name="name"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-zonion focus:ring-zonion p-2 border">
+                    <span id="nameError" class="text-red-500 text-xs mt-1 hidden"></span>
+                </div>
+
+                <div>
+                    <label for="street" class="block text-sm font-medium text-gray-700">Street Address</label>
+                    <input type="text" id="street" name="street"
+                           class="mt-1 w-full block  rounded-md border-gray-300 shadow-sm focus:border-zonion focus:ring-zonion p-2 border">
+                    <span id="streetError" class="text-red-500 text-xs mt-1 hidden"></span>
+                </div>
+
+                <div>
+                    <label for="city" class="block text-sm font-medium text-gray-700">City</label>
+                    <input type="text" id="city" name="city"
+                           class="mt-1 w-full block  rounded-md border-gray-300 shadow-sm focus:border-zonion focus:ring-zonion p-2 border">
+                    <span id="cityError" class="text-red-500 text-xs mt-1 hidden"></span>
+                </div>
+
+                <div>
+                    <label for="state" class="block text-sm font-medium text-gray-700">State</label>
+                    <input type="text" id="state" name="state"
+                           class="mt-1 w-full block  rounded-md border-gray-300 shadow-sm focus:border-zonion focus:ring-zonion p-2 border">
+                    <span id="stateError" class="text-red-500 text-xs mt-1 hidden"></span>
+                </div>
+
+                <div>
+                    <label for="zip" class="block text-sm font-medium text-gray-700">ZIP Code</label>
+                    <input type="text" id="zip" name="zip" minlength="6" maxlength="6" pattern="[0-9]{6}"
+                           class="mt-1 w-full block rounded-md border-gray-300 shadow-sm focus:border-zonion focus:ring-zonion p-2 border">
+                    <span id="zipError"
+                          class="text-red-500 text-xs mt-1 hidden">ZIP Code must be exactly 6 digits.</span>
+
+                    <script>
+                        document.getElementById('zip').addEventListener('input', function () {
+                            let zipInput = this.value;
+                            let zipError = document.getElementById('zipError');
+
+                            if (/^\d{6}$/.test(zipInput)) {
+                                zipError.classList.add('hidden'); // Hide error if valid
+                            } else {
+                                zipError.classList.remove('hidden'); // Show error if invalid
+                            }
+                        });
+                    </script>
+                </div>
+
+                <div>
+                    <label for="place" class="block text-sm font-medium text-gray-700">Address Type</label>
+                    <select id="place" name="place"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-zonion focus:ring-zonion p-2 border">
+                        <option value="">Select Type</option>
+                        <option value="HOME">Home</option>
+                        <option value="WORK">Work</option>
+                        <option value="OTHER">Other</option>
+                    </select>
+                    <span id="placeError" class="text-red-500 text-xs mt-1 hidden"></span>
+                </div>
+
+                <div class="flex justify-end gap-3 mt-5">
+                    <button type="button" onclick="closeModal()"
+                            class="px-4 py-2 bg-gray-100 text-gray-700 text-base font-medium rounded-md shadow-sm hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            class="px-4 py-2 bg-zonion text-white text-base font-medium rounded-md shadow-sm hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-zonion">
+                        Save Address
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div id="editAddressModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
+    <div class="relative top-20 mx-auto w-64 sm:w-1/2 p-3 md:p-5 border shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <h3 class="text-sm md:text-lg leading-6 font-medium text-gray-900 mb-4">Edit Address</h3>
+
+            <form id="editForm" th:action="@{/profile/address/edit}" method="post" class="space-y-4">
+                <input type="hidden" id="editId" name="id">
+                <div>
+                    <label for="editName" class="block text-sm font-medium text-gray-700">Receivers Name</label>
+                    <input type="text" id="editName" name="name"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-zonion focus:ring-zonion p-2 border">
+                    <span id="editNameError" class="text-red-500 text-xs mt-1 hidden"></span>
+                </div>
+
+                <div>
+                    <label for="editStreet" class="block text-sm font-medium text-gray-700">Street Address</label>
+                    <input type="text" id="editStreet" name="street"
+                           class="mt-1 w-full block rounded-md border-gray-300 shadow-sm focus:border-zonion focus:ring-zonion p-2 border">
+                    <span id="editStreetError" class="text-red-500 text-xs mt-1 hidden"></span>
+                </div>
+
+                <div>
+                    <label for="editCity" class="block text-sm font-medium text-gray-700">City</label>
+                    <input type="text" id="editCity" name="city"
+                           class="mt-1 w-full block rounded-md border-gray-300 shadow-sm focus:border-zonion focus:ring-zonion p-2 border">
+                    <span id="editCityError" class="text-red-500 text-xs mt-1 hidden"></span>
+                </div>
+
+                <div>
+                    <label for="editState" class="block text-sm font-medium text-gray-700">State</label>
+                    <input type="text" id="editState" name="state"
+                           class="mt-1 w-full block rounded-md border-gray-300 shadow-sm focus:border-zonion focus:ring-zonion p-2 border">
+                    <span id="editStateError" class="text-red-500 text-xs mt-1 hidden"></span>
+                </div>
+
+                <div>
+                    <label for="editZip" class="block text-sm font-medium text-gray-700">ZIP Code</label>
+                    <input type="text" id="editZip" name="zip" minlength="6" maxlength="6" pattern="[0-9]{6}"
+                           class="mt-1 w-full block rounded-md border-gray-300 shadow-sm focus:border-zonion focus:ring-zonion p-2 border">
+                    <span id="editZipError" class="text-red-500 text-xs mt-1 hidden">ZIP Code must be exactly 6 digits.</span>
+                </div>
+
+                <div>
+                    <label for="editPlace" class="block text-sm font-medium text-gray-700">Address Type</label>
+                    <select id="editPlace" name="place"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-zonion focus:ring-zonion p-2 border">
+                        <option value="">Select Type</option>
+                        <option value="HOME">Home</option>
+                        <option value="WORK">Work</option>
+                        <option value="OTHER">Other</option>
+                    </select>
+                    <span id="editPlaceError" class="text-red-500 text-xs mt-1 hidden"></span>
+                </div>
+
+                <input type="hidden" name="userId" th:value="${userId}">
+
+                <div class="flex justify-end gap-3 mt-5">
+                    <button type="button" onclick="closeEditModal()"
+                            class="px-4 py-2 bg-gray-100 text-gray-700 text-base font-medium rounded-md shadow-sm hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            class="px-4 py-2 bg-zonion text-white text-base font-medium rounded-md shadow-sm hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-zonion">
+                        Update Address
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    const profileBtn = document.getElementById('profileBtn');
+    const dropdownMenu = document.getElementById('dropdownMenu');
+
+    profileBtn.addEventListener('click', () => {
+        dropdownMenu.classList.toggle('hidden');
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!profileBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+            dropdownMenu.classList.add('hidden');
+        }
+    });
+
+    // Add address modal functionality
+    const addAddressModal = document.getElementById('addAddressModal');
+    const addAddressButton = document.getElementById('addAddressButton');
+    const addAddressButtonEmpty = document.getElementById('addAddressButtonEmpty');
+
+    // Show add address modal
+    addAddressButton.addEventListener('click', () => {
+        addAddressModal.classList.remove('hidden');
+    });
+
+    if (addAddressButtonEmpty) {
+        addAddressButtonEmpty.addEventListener('click', () => {
+            addAddressModal.classList.remove('hidden');
+        });
+    }
+
+    // Function to close add address modal
+    function closeModal() {
+        addAddressModal.classList.add('hidden');
+        resetFormErrors();
+        document.getElementById('addressForm').reset();
+    }
+
+    // Close modal when clicking outside
+    window.addEventListener('click', (event) => {
+        if (event.target == addAddressModal) {
+            closeModal();
+        }
+    });
+
+    // Custom form validation
+    const addressForm = document.getElementById('addressForm');
+
+    addressForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        if (validateForm()) {
+            this.submit();
+        }
+    });
+
+    function validateForm() {
+        resetFormErrors();
+        let isValid = true;
+
+        // Name validation
+        const name = document.getElementById('name').value.trim();
+        if (name.length === 0) {
+            showError('name', 'Name is required');
+            isValid = false;
+        } else if (name.length < 3) {
+            showError('name', 'Name must be at least 3 characters long');
+            isValid = false;
+        } else if (!/^[a-zA-Z\s]+$/.test(name)) {
+            showError('name', 'Name should only contain letters and spaces');
+            isValid = false;
+        }
+
+        // Street validation
+        const street = document.getElementById('street').value.trim();
+        if (street.length === 0) {
+            showError('street', 'Street address is required');
+            isValid = false;
+        } else if (street.length < 5) {
+            showError('street', 'Street address must be at least 5 characters long');
+            isValid = false;
+        }
+
+        // City validation
+        const city = document.getElementById('city').value.trim();
+        if (city.length === 0) {
+            showError('city', 'City is required');
+            isValid = false;
+        } else if (!/^[a-zA-Z\s]+$/.test(city)) {
+            showError('city', 'City should only contain letters and spaces');
+            isValid = false;
+        }
+
+        // State validation
+        const state = document.getElementById('state').value.trim();
+        if (state.length === 0) {
+            showError('state', 'State is required');
+            isValid = false;
+        } else if (!/^[a-zA-Z\s]+$/.test(state)) {
+            showError('state', 'State should only contain letters and spaces');
+            isValid = false;
+        }
+
+        // ZIP validation
+        const zip = document.getElementById('zip').value.trim();
+        if (zip.length === 0) {
+            showError('zip', 'ZIP code is required');
+            isValid = false;
+        } else if (!/^\d{6}$/.test(zip)) {
+            showError('zip', 'ZIP code must be exactly 6 digits');
+            isValid = false;
+        }
+
+        // Place validation
+        const place = document.getElementById('place').value;
+        if (!place) {
+            showError('place', 'Please select an address type');
+            isValid = false;
+        }
+
+        return isValid;
+    }
+
+    function showError(fieldId, message) {
+        const errorElement = document.getElementById(`${fieldId}Error`);
+        const inputElement = document.getElementById(fieldId);
+
+        errorElement.textContent = message;
+        errorElement.classList.remove('hidden');
+        errorElement.style.color = '#EF4444'; // Tailwind red-500
+        inputElement.classList.add('border-red-500');
+    }
+
+    function resetFormErrors() {
+        const errorElements = document.querySelectorAll('[id$="Error"]');
+        const inputElements = document.querySelectorAll('input, select');
+
+        errorElements.forEach(element => {
+            element.textContent = '';
+            element.classList.add('hidden');
+        });
+
+        inputElements.forEach(input => {
+            input.classList.remove('border-red-500');
+        });
+    }
+
+    // Real-time ZIP code validation
+    document.getElementById('zip').addEventListener('input', function() {
+        let zipInput = this.value;
+        let zipError = document.getElementById('zipError');
+
+        if (/^\d{6}$/.test(zipInput)) {
+            zipError.classList.add('hidden');
+            this.classList.remove('border-red-500');
+        } else {
+            zipError.textContent = 'ZIP Code must be exactly 6 digits';
+            zipError.classList.remove('hidden');
+            zipError.style.color = '#EF4444';
+            this.classList.add('border-red-500');
+        }
+    });
+
+    // Edit address modal functionality
+    const editAddressModal = document.getElementById('editAddressModal');
+    const editForm = document.getElementById('editForm');
+
+    // Edit button click handlers
+    document.querySelectorAll('.edit-address').forEach(button => {
+        button.addEventListener('click', () => {
+            const id = button.getAttribute('data-id');
+            const name = button.getAttribute('data-name');
+            const street = button.getAttribute('data-street');
+            const city = button.getAttribute('data-city');
+            const state = button.getAttribute('data-state');
+            const zip = button.getAttribute('data-zip');
+            const place = button.getAttribute('data-place');
+
+            // Populate the edit form
+            document.getElementById('editId').value = id;
+            document.getElementById('editName').value = name;
+            document.getElementById('editStreet').value = street;
+            document.getElementById('editCity').value = city;
+            document.getElementById('editState').value = state;
+            document.getElementById('editZip').value = zip;
+            document.getElementById('editPlace').value = place;
+
+            // Show the modal
+            editAddressModal.classList.remove('hidden');
+        });
+    });
+
+    // Function to close edit modal
+    function closeEditModal() {
+        editAddressModal.classList.add('hidden');
+        resetEditFormErrors();
+        editForm.reset();
+    }
+
+    // Close edit modal when clicking outside
+    window.addEventListener('click', (event) => {
+        if (event.target == editAddressModal) {
+            closeEditModal();
+        }
+    });
+
+    // Edit form validation
+    editForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        if (validateEditForm()) {
+            this.submit();
+        }
+    });
+
+    function validateEditForm() {
+        resetEditFormErrors();
+        let isValid = true;
+
+        // Name validation
+        const name = document.getElementById('editName').value.trim();
+        if (name.length === 0) {
+            showEditError('editName', 'Name is required');
+            isValid = false;
+        } else if (name.length < 3) {
+            showEditError('editName', 'Name must be at least 3 characters long');
+            isValid = false;
+        } else if (!/^[a-zA-Z\s]+$/.test(name)) {
+            showEditError('editName', 'Name should only contain letters and spaces');
+            isValid = false;
+        }
+
+        // Repeat similar validation for other fields...
+        // (Copy the validation logic from the add form but use the edit form IDs)
+
+        return isValid;
+    }
+
+    function showEditError(fieldId, message) {
+        const errorElement = document.getElementById(`${fieldId}Error`);
+        const inputElement = document.getElementById(fieldId);
+
+        errorElement.textContent = message;
+        errorElement.classList.remove('hidden');
+        errorElement.style.color = '#EF4444';
+        inputElement.classList.add('border-red-500');
+    }
+
+    function resetEditFormErrors() {
+        const errorElements = editForm.querySelectorAll('[id$="Error"]');
+        const inputElements = editForm.querySelectorAll('input, select');
+
+        errorElements.forEach(element => {
+            element.textContent = '';
+            element.classList.add('hidden');
+        });
+
+        inputElements.forEach(input => {
+            input.classList.remove('border-red-500');
+        });
+    }
+
+</script>
+</body>
+</html>

@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+          rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <meta charset="UTF-8">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Document</title>
+</head>
+<body>
+<!-- Header Fragment -->
+<div th:fragment="header">
+    <nav class="bg-white shadow-sm p-4">
+        <div class="container mx-auto">
+            <div class="flex items-center justify-between">
+                <a href="/"><div class="flex items-center">
+                    <img th:src="@{/images/onion-logo.png}" alt="Zonion" class="h-8">
+                    <h1 class="text-2xl font-[800] text-zonion ml-3 mt-1.5">ZONION</h1>
+                </div></a>
+            </div>
+        </div>
+    </nav>
+</div>
+<div class="flex">
+<!-- Sidebar -->
+    <div class="flex-col w-64 h-screen border-r bg-white">
+        <div class="text-xl text-zonion font-[600] p-8 border-b">Admin Dashboard</div>
+
+        <!-- Navigation Items -->
+        <nav class="mt-4">
+
+            <a href="/admin_dashboard/main" class="flex items-center px-8 py-3 text-zonion bg-purple-50 hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Admin Dashboard</span>
+            </a>
+            <a href="/admin_dashboard" class="flex items-center px-8 py-3 hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Users</span>
+            </a>
+            <a href="/admin_dashboard/products" class="flex items-center px-8 py-3   hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Products</span>
+            </a>
+            <a href="/admin_dashboard/category" class="flex items-center px-8 py-3 text-gray-700 hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Categories</span>
+            </a>
+            <a href="/admin/orders" class="flex items-center px-8 py-3    hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Orders</span>
+            </a>
+            <a href="/admin_dashboard/inventory" class="flex items-center px-8 py-3    hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">inventory</span>
+            </a>
+            <a href="/admin_dashboard/coupons"
+               class="flex items-center px-8 py-3  hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Coupons</span>
+            </a>
+
+            <a href="/admin_dashboard/offers"
+               class="flex items-center px-8 py-3  hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Offers</span>
+            </a>
+
+            <a href="/admin_dashboard/sales-report"
+               class="flex items-center px-8 py-3 hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Sales Report</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 p-8">
+        <h1 class="text-3xl font-bold text-zonion mb-8">Admin Dashboard</h1>
+
+        <!-- Filters -->
+        <form method="get" class="mb-8 bg-white p-4 rounded-lg shadow">
+            <div class="flex gap-4 items-center">
+                <select name="period" class="p-2 border rounded">
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly" selected>Monthly</option>
+                    <option value="yearly">Yearly</option>
+                </select>
+                <input type="date" name="startDate" class="p-2 border rounded">
+                <input type="date" name="endDate" class="p-2 border rounded">
+                <button type="submit" class="bg-zonion text-white px-4 py-2 rounded hover:bg-purple-700">
+                    Apply Filters
+                </button>
+            </div>
+        </form>
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="text-gray-500 text-sm">Total Orders</h3>
+                <p class="text-2xl font-bold" th:text="${totalOrders}">0</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="text-gray-500 text-sm">Total Sales</h3>
+                <p class="text-2xl font-bold" th:text="'₹' + ${#numbers.formatDecimal(totalSales, 1, 2)}">0</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="text-gray-500 text-sm">Coupon Discounts</h3>
+                <p class="text-2xl font-bold text-red-500" th:text="'-₹' + ${#numbers.formatDecimal(totalCouponDiscounts, 1, 2)}">0</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="text-gray-500 text-sm">Offer Discounts</h3>
+                <p class="text-2xl font-bold text-red-500" th:text="'-₹' + ${#numbers.formatDecimal(totalOfferDiscounts, 1, 2)}">0</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="text-gray-500 text-sm">Products Sold</h3>
+                <p class="text-2xl font-bold" th:text="${totalProductsSold}">0</p>
+            </div>
+        </div>
+
+        <!-- Uncomment and modify the sales chart section -->
+        <input type="hidden" id="chartData" th:value="${chartDataJson}">
+        <!-- Sales Chart Section -->
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold mb-4 text-zonion text-center">Sales Performance</h2>
+            <div class="bg-white p-6 mx-auto h-90 rounded-lg shadow">
+                <canvas id="salesChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Top Lists -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Top Products -->
+            <!-- Top Products Chart -->
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h2 class="text-xl font-semibold mb-4 text-zonion">Top Selling Products</h2>
+                <input type="hidden" name="topProductsData" id="topProductsData" th:value="${topProductsData}">
+                <div class="h-96"> <!-- Fixed height for chart container -->
+                    <canvas id="topProductsChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Top Categories -->
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h2 class="text-xl font-semibold mb-4 text-zonion">Top Selling Categories</h2>
+                <input type="hidden" name="topCategoryData" id="topCategoryData" th:value="${topCategoriesJson}">
+                <div class="h-96"> <!-- Fixed height for chart container -->
+                    <canvas id="topCategoryChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+</div>
+
+</body>
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    zonion: '#BC5DC6',
+                },
+                fontFamily: {
+                    'sans': ['Montserrat', 'sans-serif'],
+                },
+                fontWeight: {
+                    'thin': '100',
+                    'extralight': '200',
+                    'light': '300',
+                    'normal': '400',
+                    'medium': '500',
+                    'semibold': '600',
+                    'bold': '700',
+                    'extrabold': '800',
+                    'black': '900',
+                },
+                fontSize: {
+                    'xs': ['0.75rem', { lineHeight: '1rem' }],
+                    'sm': ['0.875rem', { lineHeight: '1.25rem' }],
+                    'base': ['1rem', { lineHeight: '1.5rem' }],
+                    'lg': ['1.125rem', { lineHeight: '1.75rem' }],
+                    'xl': ['1.25rem', { lineHeight: '1.75rem' }],
+                    '2xl': ['1.5rem', { lineHeight: '2rem' }],
+                    '3xl': ['1.875rem', { lineHeight: '2.25rem' }],
+                    '4xl': ['2.25rem', { lineHeight: '2.5rem' }],
+                    '5xl': ['3rem', { lineHeight: '1' }],
+                    '6xl': ['3.75rem', { lineHeight: '1' }],
+                    '7xl': ['4.5rem', { lineHeight: '1' }],
+                    '8xl': ['6rem', { lineHeight: '1' }],
+                    '9xl': ['8rem', { lineHeight: '1' }],
+                },
+            },
+        },
+    };
+
+    // Horizontal Bar Chart for Top Products
+    var topProductsData = JSON.parse(document.getElementById('topProductsData').value);
+
+    var productLabels = topProductsData.map(item => item.productName);
+    var productQuantities = topProductsData.map(item => item.quantity);
+
+    new Chart(document.getElementById('topProductsChart'), {
+        type: 'bar',
+        data: {
+            labels: productLabels,
+            datasets: [{
+                label: 'Quantity Sold',
+                data: productQuantities,
+                backgroundColor: [
+                    '#FF6384', // Bright Pink
+                    '#36A2EB', // Blue
+                    '#FFCE56', // Yellow
+                    '#4BC0C0', // Teal
+                    '#9966FF', // Purple
+                    '#FF9F40', // Orange
+                    '#7CFC00', // Lime Green
+                    '#FF5733', // Coral
+                    '#00BFFF', // Deep Sky Blue
+                    '#FF1493'  // Deep Pink
+                ],
+                borderColor: '#BC5DC6',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right'
+                }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                },
+                y: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+
+    // Horizontal Bar Chart for Top Products
+    var topCategoryData = JSON.parse(document.getElementById('topCategoryData').value);
+
+
+    var categoryLabels = topCategoryData.map(item => item.categoryName);
+    var categoryQuantities = topCategoryData.map(item => item.quantity);
+
+
+    new Chart(document.getElementById('topCategoryChart'), {
+        type: 'pie',
+        data: {
+            labels: categoryLabels,
+            datasets: [{
+                label: 'Quantity Sold',
+                data: categoryQuantities,
+                backgroundColor: [
+                    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+                    '#9966FF', '#FF9F40', '#7CFC00', '#FF5733',
+                    '#00BFFF', '#FF1493'
+                ],
+                borderColor: '#ffffff',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        padding: 20,
+                        boxWidth: 20
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.label || '';
+                            let value = context.raw || 0;
+                            let sum = context.dataset.data.reduce((a, b) => a + b, 0);
+                            let percentage = Math.round((value / sum) * 100);
+                            return `${label}: ${value} units (${percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Sales Line Chart
+    var chartData = JSON.parse(document.getElementById('chartData').value);
+    var labels = Object.keys(chartData);
+    var data = labels.map(label => chartData[label]);
+
+    // Sales Line Chart
+    var chartData = JSON.parse(document.getElementById('chartData').value);
+    var labels = Object.keys(chartData);
+    var data = labels.map(label => chartData[label]);
+
+    new Chart(document.getElementById('salesChart'), {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Sales (₹)',
+                data: data,
+                backgroundColor: [
+                    '#FF6384', // Bright Pink
+                    '#36A2EB', // Blue
+                    '#FFCE56', // Yellow
+                    '#4BC0C0', // Teal
+                    '#9966FF', // Purple
+                    '#FF9F40', // Orange
+                    '#7CFC00', // Lime Green
+                    '#FF5733', // Coral
+                    '#00BFFF', // Deep Sky Blue
+                    '#FF1493'  // Deep Pink
+                ],
+                borderColor: '#BC5DC6',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'top' },
+                title: {
+                    display: true,
+                    text: 'Sales Overview'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '₹' + value.toLocaleString();
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+</script>
+</html>

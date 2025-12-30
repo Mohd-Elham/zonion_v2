@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div class="container mt-5">
+  <h1>Edit Product</h1>
+  <form th:action="@{/admin/editProduct}"  method="post" enctype="multipart/form-data">
+    <div class="modal-header">
+      <h5 class="modal-title" id="editProductModalLabel">Edit Product</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+
+
+
+
+    </div>
+
+    <input type="file" name="image" id="image" class="form-control" accept="image/*">
+    <!-- Hidden input for cropped image data -->
+    <input type="hidden" name="croppedImage" id="croppedImage">
+
+
+    <!-- Canvas Element -->
+    <canvas id="mycanvas" width="800" height="400"></canvas>
+
+    <button class="btn btn-primary" id="crop" style="margin-top: 10px;">Crop</button>
+
+    <h3>Cropped Image:</h3>
+    <canvas id="croppedCanvas" width="400" height="400" style="border:1px solid black;"></canvas>
+
+    <div class="modal-footer">
+      <button type="submit" class="btn btn-success">Save Changes</button>
+      <a type="button" href="/admin/products" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</a>
+    </div>
+  </form>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.querySelector("form");
+    const fileInput = document.getElementById('image');
+    const canvas = document.getElementById('mycanvas');
+    const croppedCanvas = document.getElementById('croppedCanvas');
+    const context = canvas.getContext('2d');
+    const croppedContext = croppedCanvas.getContext('2d');
+    const cropButton = document.getElementById('crop');
+
+    // Variables to track cropping
+    let image = null; // To hold the uploaded image
+    let startX, startY, endX, endY; // Coordinates for cropping
+    let isDragging = false;
+
+    // Load the uploaded image onto the canvas
+    fileInput.addEventListener('change', function (event) {
+      if (event.target.files && event.target.files[0]) {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+          image = new Image();
+          image.src = e.target.result;
+
+          image.onload = function () {
+            // Clear the canvas and draw the image
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            context.drawImage(image, 0, 0, canvas.width, canvas.height);
+          };
+        };
+
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Mouse events to define the cropping area
+    canvas.addEventListener('mousedown', function (event) {
+      const rect = canvas.getBoundingClientRect();
+      startX = event.clientX - rect.left;
+      startY = event.clientY - rect.top;
+      isDragging = true;
+    });
+
+    canvas.addEventListener('mousemove', function (event) {
+      if (isDragging) {
+        const rect = canvas.getBoundingClientRect();
+        endX = event.clientX - rect.left;
+        endY = event.clientY - rect.top;
+
+        // Redraw the image and show the cropping rectangle
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+        // Draw the cropping rectangle
+        context.strokeStyle = 'red';
+        context.lineWidth = 2;
+        context.strokeRect(startX, startY, endX - startX, endY - startY);
+      }
+    });
+
+    canvas.addEventListener('mouseup', function () {
+      isDragging = false;
+    });
+
+    // Crop the selected area and display it on the cropped canvas
+
+    const croppedImageInput = document.getElementById('croppedImage');
+    cropButton.addEventListener('click', function () {
+      if (image && startX !== undefined && startY !== undefined && endX !== undefined && endY !== undefined) {
+        // Calculate the cropping dimensions
+        const cropWidth = endX - startX;
+        const cropHeight = endY - startY;
+
+        // Get the cropped image data
+        const imageData = context.getImageData(startX, startY, cropWidth, cropHeight);
+
+        // Clear and draw the cropped image on the cropped canvas
+        croppedContext.clearRect(0, 0, croppedCanvas.width, croppedCanvas.height);
+        croppedCanvas.width = cropWidth;
+        croppedCanvas.height = cropHeight;
+        croppedContext.putImageData(imageData, 0, 0);
+
+        // Convert the cropped canvas to a Base64 string
+        const croppedImageDataURL = croppedCanvas.toDataURL("image/png");
+
+        // Set the Base64 string as the value of the hidden input
+        croppedImageInput.value = croppedImageDataURL;
+      } else {
+        alert('Please select a valid cropping area!');
+      }
+    });
+  });
+</script>
+</body>
+</html>

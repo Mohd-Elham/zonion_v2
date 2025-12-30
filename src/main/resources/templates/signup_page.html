@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get your freshly prepared meal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<!--    <link rel="stylesheet" href="output.css">-->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="font-sans bg-gray-50">
+<nav class="bg-white shadow-sm p-4">
+    <div class="container mx-auto">
+        <div class="flex items-center">
+            <img th:src="@{/images/onion-logo.png}" alt="Zonion" class="h-8">
+            <h1 class="text-2xl font-[800] text-zonion ml-3 mt-1.5">ZONION</h1>
+        </div>
+    </div>
+</nav>
+
+<main class="container mx-auto px-4 ">
+    <div class="flex flex-col md:flex-row gap-8 items-center justify-center">
+        <!-- Form Section -->
+        <div class="w-full md:w-1/2 max-w-md">
+            <h1 class="text-2xl font-semibold mb-10">Get your freshly prepared meal !!</h1>
+
+            <form th:action="@{/signup}" method="post" class="space-y-4" onsubmit="return validateForm()">
+                <div>
+
+                    <div th:if="${errorUsername}" class="alert alert-danger" th:text="${errorUsername}"></div>
+                    <span class="text-sm font-bold text-gray-700">Username</span>
+                    <input type="text"
+                           name="username"
+                           placeholder="Name"
+                           class="text-sm placeholder-gray-300 w-full px-2 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                           required>
+                </div>
+
+                <div>
+                    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+                    <span class="text-sm font-bold text-gray-700">Email</span>
+                    <input type="email"
+                           name="email"
+                           placeholder="Email address"
+                           class="text-sm placeholder-gray-300 w-full px-2 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                           required>
+                </div>
+
+                <div>
+                    <span class="text-sm font-bold text-gray-700">Mobile</span>
+                    <input type="tel"
+                           name="phone"
+                           placeholder="mobile"
+                           class="text-sm placeholder-gray-300 w-full px-2 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                           minlength="10"
+                           maxlength="10"
+
+                           required>
+                </div>
+
+                <div class="relative">
+                    <span class="text-sm font-bold text-gray-700">Password</span>
+                    <div class="relative">
+                        <input type="password"
+                               id="password"
+                               name="password"
+                               placeholder="Password"
+                               oninput="validatePasswordStrength(this.value)"
+                               class="text-sm placeholder-gray-300 w-full px-2 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                               required>
+                        <button type="button"
+                                onclick="togglePassword('password')"
+                                class="absolute right-2 top-1/2 transform -translate-y-1/2">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div id="passwordRequirements" class="text-[10px] justify-center gap-3 mt-1 flex">
+                        <p id="lengthReq" class="text-red-500">✗ Minimum 8 characters</p>
+                        <p id="upperReq" class="text-red-500">✗ At least one uppercase letter</p>
+                        <p id="numberReq" class="text-red-500">✗ At least one number</p>
+                    </div>
+                </div>
+
+                <div class="relative">
+                    <span class="text-sm font-bold text-gray-700">Confirm Password</span>
+                    <div class="relative">
+                        <input type="password"
+                               id="confirmPassword"
+                               name="confirmPassword"
+                               placeholder="Confirm Password"
+                               class="text-sm placeholder-gray-300 w-full px-2 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                               required>
+                        <button type="button"
+                                onclick="togglePassword('confirmPassword')"
+                                class="absolute right-2 top-1/2 transform -translate-y-1/2">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <span id="passwordError" class="text-red-500 text-xs hidden">Passwords do not match!</span>
+                </div>
+
+                <button type="submit"
+                        class="w-full py-2 px-4 bg-purple-500 text-white rounded-md hover:bg-purple-600 transition duration-200">
+                    Signup
+                </button>
+
+                <div class="flex items-center justify-center my-12">
+                    <div class="border-t border-gray-600 flex-grow"></div>
+                    <span class="mx-4 text-gray-500 font-medium">OR</span>
+                    <div class="border-t border-gray-600 flex-grow"></div>
+                </div>
+
+                <div class="flex items-center justify-center gap-2 mt-4">
+                    <button type="button"
+                            class="w-full flex items-center justify-center gap-2 py-2 px-4 border rounded-md hover:bg-gray-50 transition duration-200">
+                        <img src="https://cdn.cdnlogo.com/logos/g/35/google-icon.svg"
+                             alt="Google"
+                             class="w-5 h-5">
+                        Sign in with Google
+                    </button>
+                </div>
+            </form>
+
+            <p class="text-center mt-4">
+                Have an account?
+                <a th:href="@{/login}" class="text-blue-600 hover:underline">Sign in</a>
+            </p>
+        </div>
+
+        <!-- Image Section -->
+        <div class="w-full md:w-1/2 hidden md:block">
+            <img th:src="@{/images/login-bg.jpg}"
+                 alt="Cooking"
+                 class="rounded-lg shadow-lg w-full max-w-lg mx-auto"
+                 src="https://images.unsplash.com/photo-1556911220-e15b29be8c8f?ixlib=rb-1.2.1">
+        </div>
+    </div>
+</main>
+
+<script th:inline="javascript">
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    zonion: '#BC5DC6',
+                },
+                fontFamily: {
+                    'sans': ['Montserrat', 'sans-serif'],
+                },
+                fontWeight: {
+                    'thin': '100',
+                    'extralight': '200',
+                    'light': '300',
+                    'normal': '400',
+                    'medium': '500',
+                    'semibold': '600',
+                    'bold': '700',
+                    'extrabold': '800',
+                    'black': '900',
+                },
+                fontSize: {
+                    'xs': ['0.75rem', { lineHeight: '1rem' }],
+                    'sm': ['0.875rem', { lineHeight: '1.25rem' }],
+                    'base': ['1rem', { lineHeight: '1.5rem' }],
+                    'lg': ['1.125rem', { lineHeight: '1.75rem' }],
+                    'xl': ['1.25rem', { lineHeight: '1.75rem' }],
+                    '2xl': ['1.5rem', { lineHeight: '2rem' }],
+                    '3xl': ['1.875rem', { lineHeight: '2.25rem' }],
+                    '4xl': ['2.25rem', { lineHeight: '2.5rem' }],
+                    '5xl': ['3rem', { lineHeight: '1' }],
+                    '6xl': ['3.75rem', { lineHeight: '1' }],
+                    '7xl': ['4.5rem', { lineHeight: '1' }],
+                    '8xl': ['6rem', { lineHeight: '1' }],
+                    '9xl': ['8rem', { lineHeight: '1' }],
+                },
+            },
+        },
+    };
+    function validatePasswordStrength(password) {
+        const lengthReq = document.getElementById('lengthReq');
+        const upperReq = document.getElementById('upperReq');
+        const numberReq = document.getElementById('numberReq');
+
+        // Check minimum length
+        if (password.length >= 8) {
+            lengthReq.classList.remove('text-red-500');
+            lengthReq.classList.add('text-green-500');
+            lengthReq.innerHTML = '✓ Minimum 8 characters';
+        } else {
+            lengthReq.classList.remove('text-green-500');
+            lengthReq.classList.add('text-red-500');
+            lengthReq.innerHTML = '✗ Minimum 8 characters';
+        }
+
+        // Check uppercase
+        if (/[A-Z]/.test(password)) {
+            upperReq.classList.remove('text-red-500');
+            upperReq.classList.add('text-green-500');
+            upperReq.innerHTML = '✓ At least one uppercase letter';
+        } else {
+            upperReq.classList.remove('text-green-500');
+            upperReq.classList.add('text-red-500');
+            upperReq.innerHTML = '✗ At least one uppercase letter';
+        }
+
+        // Check number
+        if (/\d/.test(password)) {
+            numberReq.classList.remove('text-red-500');
+            numberReq.classList.add('text-green-500');
+            numberReq.innerHTML = '✓ At least one number';
+        } else {
+            numberReq.classList.remove('text-green-500');
+            numberReq.classList.add('text-red-500');
+            numberReq.innerHTML = '✗ At least one number';
+        }
+    }
+
+    function validateForm() {
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        const errorElement = document.getElementById('passwordError');
+
+        // Check password requirements
+        if (password.length < 8 || !/[A-Z]/.test(password) || !/\d/.test(password)) {
+            alert('Please meet all password requirements');
+            return false;
+        }
+
+        // Check if passwords match
+        if (password !== confirmPassword) {
+            errorElement.classList.remove('hidden');
+            return false;
+        }
+
+        errorElement.classList.add('hidden');
+        return true;
+    }
+
+    function togglePassword(inputId) {
+        const input = document.getElementById(inputId);
+        const button = input.nextElementSibling.querySelector('i');
+
+        if (input.type === 'password') {
+            input.type = 'text';
+            button.classList.remove('fa-eye');
+            button.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            button.classList.remove('fa-eye-slash');
+            button.classList.add('fa-eye');
+        }
+    }
+</script>
+</body>
+</html>

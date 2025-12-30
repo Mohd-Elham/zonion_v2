@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>search</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+</head>
+<body class="font-sans bg-gray-50 min-h-screen">
+<!-- Navigation Bar -->
+<nav class="bg-white shadow-sm fixed w-full top-0 z-50">
+    <div class="container mx-auto px-4 py-3">
+        <div class="flex items-center justify-between gap-4">
+            <!-- Logo Section -->
+            <a href="/">
+                <div class="flex items-center">
+                    <img alt="Zonion" class="h-8" th:src="@{/images/onion-logo.png}">
+                    <h1 class="text-2xl font-[800] text-zonion ml-3">ZONION</h1>
+                </div>
+            </a>
+
+            <!-- Search Bar -->
+            <div class="flex-grow max-w-2xl hidden sm:block">
+                <div class="relative">
+                    <form th:action="@{/search}" method="get" class="w-full max-w-2xl mx-auto">
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <div class="relative flex-grow">
+                                <input type="text" name="query" th:value="${param.query}"
+                                       placeholder="Search yummy food!"
+                                       class="w-full px-4 py-3 rounded-lg border-2 border-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-lg" />
+                            </div>
+                            <button type="submit"
+                                    class="px-6 py-3 bg-zonion text-white rounded-lg hover:bg-purple-700 transition duration-200 shadow-lg">
+                                Search
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Navigation Icons -->
+            <div class="flex items-center gap-3 sm:gap-6">
+                <!-- Mobile Search Toggle -->
+                <button class="sm:hidden text-gray-600 hover:text-zonion" onclick="toggleMobileSearch()">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                </button>
+<!--                <a class="text-gray-600 hover:text-zonion transition-colors duration-200" href="#">-->
+<!--                    <svg class="h-5 w-5 sm:h-6 sm:w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">-->
+<!--                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"-->
+<!--                              d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>-->
+<!--                    </svg>-->
+<!--                </a>-->
+            </div>
+        </div>
+
+        <!-- Mobile Search Bar (Hidden by default) -->
+        <div id="mobileSearch" class="sm:hidden mt-3 pb-3 hidden">
+            <form th:action="@{/search}" method="get" class="relative">
+                <input type="text"
+                       name="query"
+                       placeholder="Search products..."
+                       class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-zonion focus:border-transparent pr-6">
+                <button type="submit" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-zonion">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                </button>
+            </form>
+        </div>
+
+    </div>
+</nav>
+
+<main class="container mx-auto px-4 pt-24 pb-12">
+    <div class="max-w-6xl mx-auto">
+        <h2 class="text-2xl font-bold mb-8" th:if="${products.isEmpty()}">
+            No results found for "<span th:text="${searchQuery}"></span>"
+        </h2>
+
+        <h2 class="text-2xl font-bold mb-8" th:unless="${products.isEmpty()}">
+            Search results for "<span th:text="${searchQuery}"></span>"
+        </h2>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mx-auto">
+            <!-- Product Cards -->
+            <div th:each="product : ${products}"
+                 class="bg-white rounded-xl shadow-md hover:shadow-xl transition duration-300 transform hover:-translate-y-1">
+
+                <th:block th:if="${product.stockQuantityInt > 0}">
+                    <a th:href="@{/product/{id}(id=${product.id})}" class="hover:text-zonion">
+                </th:block>
+
+                <div class="aspect-video w-full overflow-hidden rounded-t-xl relative">
+                    <div th:if="${product.stockQuantityInt <= 0}"
+                         class="absolute top-2 right-2 bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm">
+                        Out of Stock
+                    </div>
+                    <div th:if="${product.stockQuantityInt > 0 and product.stockQuantityInt < 5}"
+                         class="absolute top-2 right-2 bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm">
+                        Low Stock
+                    </div>
+                    <img th:src="${product.image_1}"
+                         th:alt="${product.product_name}"
+                         class="w-full h-full object-cover"
+                         th:classappend="${product.stockQuantityInt <= 0} ? 'grayscale-image' : ''">
+                </div>
+                <div class="p-4 sm:p-6">
+                    <h3 class="text-lg sm:text-xl font-semibold mb-3" th:text="${product.product_name}">
+                        Product Name
+                    </h3>
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div th:if="${discountedPrices != null && discountedPrices.containsKey(product.id)}">
+                                <span class="line-through text-gray-500 text-sm">
+                                    ₹[[${#numbers.formatDecimal(product.price, 1, 2)}]]
+                                </span>
+                                <p class="text-zonion font-semibold text-lg">
+                                    ₹[[${#numbers.formatDecimal(discountedPrices.get(product.id), 1, 2)}]]
+                                    <span class="bg-teal-400 text-white px-2 py-1 rounded text-xs ml-2" th:text="${discountTexts.get(product.id)}"></span>
+                                </p>
+                            </div>
+                            <div th:unless="${discountedPrices != null && discountedPrices.containsKey(product.id)}">
+                                <p class="text-zonion font-semibold text-lg">
+                                    ₹[[${#numbers.formatDecimal(product.price, 1, 2)}]]
+                                </p>
+                            </div>
+                            <p th:if="${product.stockQuantityInt > 0}"
+                               class="text-sm text-gray-500">
+                                Stock: <span th:text="${product.stock_quantity}"></span>
+                            </p>
+                        </div>
+                        <button th:disabled="${product.stockQuantityInt <= 0}"
+                                class="bg-zonion text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed">
+                            Add to Cart
+                        </button>
+                    </div>
+                </div>
+
+                <th:block th:if="${product.stockQuantityInt > 0}">
+                    </a>
+                </th:block>
+
+            </div>
+        </div>
+    </div>
+</main>
+
+
+<!-- Footer -->
+<div th:insert="fragments :: footer"></div>
+
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    zonion: '#BC5DC6',
+                },
+                fontFamily: {
+                    'sans': ['Montserrat', 'sans-serif'],
+                }
+            },
+        },
+    };
+
+        function toggleMobileSearch() {
+        // Get the mobile search element by its ID
+        const mobileSearch = document.getElementById('mobileSearch');
+        // Toggle the 'hidden' class to show/hide the element
+        mobileSearch.classList.toggle('hidden');
+    }
+
+</script>
+</body>
+</html>

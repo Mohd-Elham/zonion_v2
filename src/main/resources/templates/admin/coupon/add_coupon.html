@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+          rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Document</title>
+</head>
+<body>
+<!-- Header Fragment -->
+<div th:fragment="header">
+    <nav class="bg-white shadow-sm p-4">
+        <div class="container mx-auto">
+            <div class="flex items-center justify-between">
+                <a href="/">
+                    <div class="flex items-center">
+                        <img th:src="@{/images/onion-logo.png}" alt="Zonion" class="h-8">
+                        <h1 class="text-2xl font-[800] text-zonion ml-3 mt-1.5">ZONION</h1>
+                    </div>
+                </a>
+                <div class="flex items-center gap-4">
+                    <button class="p-2 hover:bg-gray-100 rounded-full">
+                        <i data-lucide="bell" class="w-5 h-5 text-gray-600"></i>
+                    </button>
+                    <button class="p-2 hover:bg-gray-100 rounded-full">
+                        <i data-lucide="user" class="w-5 h-5 text-gray-600"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+</div>
+
+<div class="flex">
+    <!-- Sidebar -->
+    <div class="flex-col w-64 h-screen border-r bg-white">
+        <div class="text-xl text-zonion font-[600] p-8 border-b">Admin Dashboard</div>
+        <!-- Navigation Items -->
+        <nav class="mt-4">
+            <a href="/admin_dashboard" class="flex items-center px-8 py-3 text-gray-700 hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Users</span>
+            </a>
+            <a href="/admin_dashboard/products" class="flex items-center px-8 py-3 bg-purple-50 text-zonion hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Products</span>
+            </a>
+            <a href="/admin_dashboard/category" class="flex items-center px-8 py-3 hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Categories</span>
+            </a>
+            <a href="/admin/orders" class="flex items-center px-8 py-3 hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">Orders</span>
+            </a>
+            <a href="/admin_dashboard/inventory" class="flex items-center px-8 py-3 bg-purple-50 hover:bg-purple-50 hover:text-zonion transition-colors duration-200">
+                <span class="font-medium">inventory</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Coupon Form -->
+    <div class="w-full">
+        <div class="max-w-2xl mx-auto p-8">
+            <div class="bg-white rounded-lg shadow-sm">
+                <div class="p-6 pt-0 border-b border-gray-100">
+                    <h4 class="text-lg font-semibold text-gray-800">Add New Coupon</h4>
+                </div>
+                <form class="p-6 space-y-6" th:action="@{/coupons/add}" method="post" id="couponForm">
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Coupon Code</label>
+                        <input type="text" name="couponCode" id="couponCode"
+                               class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-zonion"
+                               placeholder="Enter coupon code (5-10 uppercase letters and numbers)">
+                        <p id="codeError" class="text-red-500 text-sm mt-1 hidden">Code must be 5-10 characters long and contain only uppercase letters and numbers</p>
+                    </div>
+
+                    <!-- Coupon Name -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Coupon Name</label>
+                        <input type="text" name="couponName" id="couponName"
+                               class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-zonion"
+                               placeholder="Enter coupon name (min 3 characters, no starting symbols)">
+                        <p id="nameError" class="text-red-500 text-sm mt-1 hidden">Coupon name must be at least 3 characters and cannot start with a symbol</p>
+                    </div>
+
+                    <!-- Coupon desc -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Coupon Description</label>
+                        <input type="text" name="couponDescription" id="couponDescription"
+                               class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-zonion"
+                               placeholder="Enter coupon name (min 3 characters, no starting symbols)">
+                        <p id="descError" class="text-red-500 text-sm mt-1 hidden">Description must be at least 3 characters long</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-6">
+                        <!-- Discount Type -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Discount Type</label>
+                            <select name="discountType" id="discountType"
+                                    class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-zonion">
+                                <option value="FLAT">Flat</option>
+                                <option value="PERCENTAGE">Percentage</option>
+                            </select>
+                        </div>
+
+                        <!-- Discount Value -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Discount Value</label>
+                            <div class="relative">
+                                <input type="number" step="0.01" name="discountValue" id="discountValue"
+                                       class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-zonion"
+                                       placeholder="Enter value">
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <span id="discountSymbol" class="text-gray-500">₹</span>
+                                </div>
+                            </div>
+                            <p id="valueError" class="text-red-500 text-sm mt-1 hidden">Valid discount value required</p>
+                        </div>
+                    </div>
+
+                    <!-- Expiration Date -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Expiration Date</label>
+                        <input type="date" name="expirationDate" id="expirationDate"
+                               class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-zonion">
+                        <p id="dateError" class="text-red-500 text-sm mt-1 hidden">Future date required</p>
+                    </div>
+
+                    <!-- Minimum Purchase -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Minimum Purchase Amount</label>
+                        <input type="number" step="0.01" name="minimumPurchaseAmount" id="minimumPurchaseAmount"
+                               class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-zonion"
+                               placeholder="Enter minimum amount (0 or greater)">
+                        <p id="minPurchaseError" class="text-red-500 text-sm mt-1 hidden">Amount cannot be negative</p>
+                    </div>
+
+                    <!-- Max Discount Amount -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Maximum Discount Amount</label>
+                        <input type="number" step="0.01" name="maximumDiscountAmount" id="maximumDiscountAmount"
+                               class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-zonion"
+                               placeholder="Enter Maximum amount (max 2000₹)">
+                        <p id="maxDiscountError" class="text-red-500 text-sm mt-1 hidden">Amount must be between 0 and 2000₹</p>
+                    </div>
+
+                    <!-- Form Buttons -->
+                    <div class="flex justify-end gap-4">
+                        <a href="/admin_dashboard/coupons" class="px-6 py-2 border rounded-lg hover:bg-gray-50">Cancel</a>
+                        <button type="submit" class="px-6 py-2 bg-zonion text-white rounded-lg hover:bg-purple-700">
+                            <span>Create Coupon</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- JavaScript for Custom Validation -->
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    zonion: '#BC5DC6',
+                },
+                fontFamily: {
+                    'sans': ['Montserrat', 'sans-serif'],
+                }
+            }
+        }
+    };
+
+    // Form validation
+    document.addEventListener('DOMContentLoaded', function() {
+        const couponForm = document.getElementById('couponForm');
+        const couponCode = document.getElementById('couponCode');
+        const couponName = document.getElementById('couponName');
+        const discountType = document.getElementById('discountType');
+        const discountValue = document.getElementById('discountValue');
+        const expirationDate = document.getElementById('expirationDate');
+        const minimumPurchaseAmount = document.getElementById('minimumPurchaseAmount');
+        const maximumDiscountAmount = document.getElementById('maximumDiscountAmount');
+
+        const couponDescription = document.getElementById('couponDescription');
+        const descError = document.getElementById('descError');
+
+        // Error elements
+        const codeError = document.getElementById('codeError');
+        const nameError = document.getElementById('nameError');
+        const valueError = document.getElementById('valueError');
+        const dateError = document.getElementById('dateError');
+        const minPurchaseError = document.getElementById('minPurchaseError');
+        const maxDiscountError = document.getElementById('maxDiscountError');
+
+        // Discount symbol
+        const discountSymbol = document.getElementById('discountSymbol');
+
+        // Update symbol based on discount type
+        discountType.addEventListener('change', function() {
+            if (this.value === 'FLAT') {
+                discountSymbol.textContent = '₹';
+            } else {
+                discountSymbol.textContent = '%';
+            }
+        });
+
+        // Validate coupon code with regex
+        couponCode.addEventListener('input', function() {
+            const codeRegex = /^[A-Z0-9]{5,10}$/;
+            if (!codeRegex.test(this.value)) {
+                codeError.classList.remove('hidden');
+                this.classList.add('border-red-500');
+            } else {
+                codeError.classList.add('hidden');
+                this.classList.remove('border-red-500');
+            }
+        });
+
+        // Validate coupon name
+        couponName.addEventListener('input', function() {
+            const nameRegex = /^[^!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?][a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{2,}$/;
+            if (!nameRegex.test(this.value)) {
+                nameError.classList.remove('hidden');
+                this.classList.add('border-red-500');
+            } else {
+                nameError.classList.add('hidden');
+                this.classList.remove('border-red-500');
+            }
+        });
+
+
+        couponDescription.addEventListener('input', function() {
+            // Modified regex to allow for a more flexible description (min 3 chars)
+            const descRegex = /^.{3,}$/;
+            if (!descRegex.test(this.value)) {
+                descError.classList.remove('hidden');
+                this.classList.add('border-red-500');
+            } else {
+                descError.classList.add('hidden');
+                this.classList.remove('border-red-500');
+            }
+        });
+        // Validate maximum discount amount
+        maximumDiscountAmount.addEventListener('input', function() {
+            const value = parseFloat(this.value);
+            if (value < 0 || value > 2000) {
+                maxDiscountError.classList.remove('hidden');
+                this.classList.add('border-red-500');
+            } else {
+                maxDiscountError.classList.add('hidden');
+                this.classList.remove('border-red-500');
+            }
+        });
+
+        // Form submission validation
+        couponForm.addEventListener('submit', function(e) {
+            let isValid = true;
+
+            // Validate coupon code
+            const codeRegex = /^[A-Z0-9]{5,10}$/;
+            if (!codeRegex.test(couponCode.value)) {
+                codeError.classList.remove('hidden');
+                couponCode.classList.add('border-red-500');
+                isValid = false;
+            } else {
+                codeError.classList.add('hidden');
+                couponCode.classList.remove('border-red-500');
+            }
+
+            // Validate coupon name
+            const nameRegex = /^[^!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?][a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{2,}$/;
+            if (!nameRegex.test(couponName.value)) {
+                nameError.classList.remove('hidden');
+                couponName.classList.add('border-red-500');
+                isValid = false;
+            } else {
+                nameError.classList.add('hidden');
+                couponName.classList.remove('border-red-500');
+            }
+
+            const descRegex = /^.{3,}$/;
+            if (!descRegex.test(couponDescription.value)) {
+                descError.classList.remove('hidden');
+                couponDescription.classList.add('border-red-500');
+                isValid = false;
+            } else {
+                descError.classList.add('hidden');
+                couponDescription.classList.remove('border-red-500');
+            }
+
+            // Validate discount value
+            if (discountValue.value <= 0) {
+                valueError.classList.remove('hidden');
+                discountValue.classList.add('border-red-500');
+                isValid = false;
+            } else {
+                // For percentage, max should be 100
+                if (discountType.value === 'PERCENTAGE' && discountValue.value > 100) {
+                    valueError.textContent = 'Percentage cannot exceed 100%';
+                    valueError.classList.remove('hidden');
+                    discountValue.classList.add('border-red-500');
+                    isValid = false;
+                } else {
+                    valueError.classList.add('hidden');
+                    discountValue.classList.remove('border-red-500');
+                }
+            }
+
+            // Validate expiration date
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const expDate = new Date(expirationDate.value);
+            if (!expirationDate.value || expDate <= today) {
+                dateError.classList.remove('hidden');
+                expirationDate.classList.add('border-red-500');
+                isValid = false;
+            } else {
+                dateError.classList.add('hidden');
+                expirationDate.classList.remove('border-red-500');
+            }
+
+            // Validate minimum purchase amount
+            if (minimumPurchaseAmount.value < 0) {
+                minPurchaseError.classList.remove('hidden');
+                minimumPurchaseAmount.classList.add('border-red-500');
+                isValid = false;
+            } else {
+                minPurchaseError.classList.add('hidden');
+                minimumPurchaseAmount.classList.remove('border-red-500');
+            }
+
+            // Validate maximum discount amount
+            const maxValue = parseFloat(maximumDiscountAmount.value);
+            if (maxValue < 0 || maxValue > 2000) {
+                maxDiscountError.classList.remove('hidden');
+                maximumDiscountAmount.classList.add('border-red-500');
+                isValid = false;
+            } else {
+                maxDiscountError.classList.add('hidden');
+                maximumDiscountAmount.classList.remove('border-red-500');
+            }
+
+            if (!isValid) {
+                e.preventDefault();
+            }
+        });
+    });
+</script>
+</body>
+</html>

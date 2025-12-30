@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zonion - Profile</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        zonion: '#BC5DC6',
+                    },
+                    fontFamily: {
+                        'sans': ['Montserrat', 'sans-serif'],
+                    }
+                }
+            }
+        };
+    </script>
+</head>
+<body class="bg-gray-50 font-sans min-h-screen">
+<!-- Top Navigation Bar -->
+<nav class="bg-white shadow-sm fixed w-full top-0 z-50">
+    <div class="container mx-auto px-4 py-3">
+        <div class="flex items-center justify-between">
+            <!-- Logo Section -->
+                <a th:href="@{/}">
+            <div class="flex items-center">
+                    <img alt="Zonion" class="h-6 sm:h-8" th:src="@{/images/onion-logo.png}">
+                    <h1 class="text-lg sm:text-xl md:text-2xl font-[800] text-zonion ml-2 sm:ml-3">ZONION</h1>
+            </div>
+                </a>
+
+            <!-- Navigation Icons -->
+            <div class="relative">
+                <div class="flex items-center gap-3 sm:gap-6">
+                    <button id="profileBtn" class="text-gray-600 hover:text-zonion transition-colors duration-200 focus:outline-none">
+                        <span class="material-symbols-outlined text-sm sm:text-base" th:text="${user.username}"></span>
+                    </button>
+                </div>
+
+                <!-- Dropdown Menu -->
+                <div id="dropdownMenu" class="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-lg shadow-lg hidden">
+                    <a href="/logout" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-16 sm:mt-20">
+    <!-- Navigation Tabs -->
+    <div class="flex flex-wrap gap-2 sm:gap-4 mb-6 sm:mb-8">
+        <a href="#" class="px-4 sm:px-6 py-2 bg-zonion text-white rounded-md text-sm sm:text-base">Profile</a>
+        <a href="/profile/orders" class="px-4 sm:px-6 py-2 bg-pink-300 text-white rounded-md text-sm sm:text-base">Orders</a>
+        <a href="/profile/address" class="px-4 sm:px-6 py-2 bg-pink-300 text-white rounded-md text-sm sm:text-base">Address</a>
+        <a href="/profile/wallet" class="px-4 sm:px-6 py-2 bg-pink-300 text-white rounded-md text-sm sm:text-base">Wallet</a>
+        <a href="/profile/referrals" class="px-4 sm:px-6 py-2 bg-pink-300 text-white rounded-md text-sm sm:text-base">Referral Code</a>
+    </div>
+
+    <!-- Profile Form -->
+    <div class="bg-white shadow-lg rounded-lg p-4 sm:p-6">
+        <div class="flex justify-between items-center mb-4 sm:mb-6">
+            <h2 class="text-lg sm:text-xl font-semibold">Personal Information</h2>
+        </div>
+
+        <form th:action="@{/profile/update}" method="post" class="space-y-4 sm:space-y-6 ml-0 sm:ml-8">
+            <input type="hidden" name="id" th:value="${user.id}">
+
+            <div class="space-y-2">
+                <label class="block text-sm sm:text-md font-bold text-gray-700">Full name</label>
+                <input type="text" name="username" th:value="${user.username}"
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-zonion focus:border-zonion text-sm sm:text-base">
+            </div>
+            
+
+            <div class="space-y-2">
+                <label class="block text-sm sm:text-md font-bold text-gray-700">Full name</label>
+                <input readonly type="email" name="email" th:value="${user.email}"
+                       class="mt-1 block hover:cursor-not-allowed w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-zonion focus:border-zonion text-sm sm:text-base">
+            </div>
+
+            <div class="space-y-2">
+                <label class="block text-sm sm:text-md font-bold text-gray-700">Phone Number</label>
+                <input type="tel" name="phone" th:value="${user.phone}"
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-zonion focus:border-zonion text-sm sm:text-base">
+            </div>
+
+            <div class="space-y-2 flex justify-between">
+
+            <button type="submit" class="w-full sm:w-auto bg-zonion text-white px-6 py-2 rounded-md text-sm sm:text-base hover:bg-opacity-90 transition-colors">
+                Save Changes
+            </button>
+                <a th:href="@{/profile/change_password/{email}(email=${user.email})}"
+                   th:if="${user.auth_provider == null or user.auth_provider != 'GOOGLE'}"
+                   th:classappend="${user.auth_provider == 'GOOGLE' ? 'hover:cursor-not-allowed opacity-50' : ''}"
+                   class="w-full sm:w-auto bg-gray-700 text-white px-6 py-3 rounded-md text-sm sm:text-base hover:bg-opacity-90 transition-colors">
+                    Change Password
+                </a>
+
+            </div>
+        </form>
+    </div>
+</main>
+
+<div th:if="${success}" id="successModal" class="fixed inset-0 flex items-center justify-center z-50 bg-gray-900 bg-opacity-60 backdrop-blur-sm transition-opacity duration-300">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-8 max-w-md w-full mx-4 transform transition-all duration-300 scale-100">
+        <!-- Success Icon -->
+        <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-6">
+            <svg class="h-10 w-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+        </div>
+
+        <!-- Title -->
+        <h3 class="text-center text-2xl font-bold text-gray-800 dark:text-white mb-2" th:text="${success}">
+            Password updated successfully!
+        </h3>
+
+        <!-- Subtitle -->
+        <p class="text-center text-gray-500 dark:text-gray-300 mb-8">
+            Your account is now secure with your new password.
+        </p>
+
+        <!-- Button -->
+        <div class="flex justify-center">
+            <button id="closeModal" class="px-6 py-3 bg-zonion hover:bg-opacity-90 text-white font-medium rounded-lg shadow-md transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-zonion focus:ring-opacity-50">
+                Close
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Simple script to close the modal
+    document.getElementById("closeModal")?.addEventListener("click", function() {
+        document.getElementById("successModal").style.display = "none";
+    });
+</script>
+
+<script>
+    // Toggle dropdown menu
+    const profileBtn = document.getElementById('profileBtn');
+    const dropdownMenu = document.getElementById('dropdownMenu');
+
+    profileBtn.addEventListener('click', () => {
+        dropdownMenu.classList.toggle('hidden');
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!profileBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+            dropdownMenu.classList.add('hidden');
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('successModal');
+        const closeBtn = document.getElementById('closeModal');
+
+        if (modal && closeBtn) {
+            // Apply entrance animation
+            setTimeout(() => {
+                modal.querySelector('div').classList.add('scale-100');
+            }, 10);
+
+            // Close button functionality
+            closeBtn.addEventListener('click', closeModal);
+
+            // Background click to close
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) closeModal();
+            });
+
+            // Auto-dismiss after 5 seconds
+            setTimeout(closeModal, 5000);
+
+            function closeModal() {
+                modal.querySelector('div').classList.replace('scale-100', 'scale-95');
+                modal.classList.add('opacity-0');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300);
+            }
+        }
+    });
+</script>
+</body>
+</html>
