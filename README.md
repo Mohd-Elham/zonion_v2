@@ -68,8 +68,6 @@ spring.data.mongodb.uri=mongodb://localhost:27017/zonion
 server.port=8080
 ```
 
-*(Change DB config if using PostgreSQL)*
-
 ---
 
 ### 3️⃣ Run the Backend
@@ -93,10 +91,9 @@ http://localhost:8080
 
 ### 🏠 Home Page
 
-*(Add your screenshot here)*
 
 ```
-![Home Page](./screenshots/home.png)
+![Home Page](./screenshots/image.png)
 ```
 
 ---
