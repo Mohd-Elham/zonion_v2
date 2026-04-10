@@ -91,10 +91,7 @@ http://localhost:8080
 
 ### 🏠 Home Page
 
-
-```
 ![Home Page](./screeenshots/image.png)
-```
 
 ---
 
@@ -122,7 +119,7 @@ src/
 
 ## 🌐 Live Demo
 
-*(Add your deployed link if available)*
+https://shop.workinharmony.fun/
 
 ---
 
