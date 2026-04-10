@@ -93,7 +93,7 @@ http://localhost:8080
 
 
 ```
-![Home Page](./screenshots/image.png)
+![Home Page](./screeenshots/image.png)
 ```
 
 ---
